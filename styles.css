@@ -1,0 +1,99 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #181818;
+    min-height: 100vh;
+    margin: 0px;
+    display: flex;
+    flex-direction: column;
+    
+}
+
+header {
+    background-color: #24df28;
+    color: black;
+    text-align: center;
+}
+
+main {
+    flex: 1;
+    padding: 0px 100px 0px 100px;
+}
+
+h1{
+ font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;   
+}
+
+h2{
+    color: #24df28;
+}
+
+p{
+    color: #90e992;
+}
+
+pre{
+    color: #90e992;
+    font-family: Arial, sans-serif;
+    font-size: larger;
+}
+
+.navbarul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+  
+.navbarli {
+    float: left;
+}
+  
+.navbarli a {
+    display: block;
+    color: #90e992;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+  
+.navbarli a:hover {
+    background-color: #111;
+}
+
+#logo{
+
+    width: 10%;
+    height: 10%;
+}
+
+.top{
+    position: relative;
+}
+
+.link-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.link-list li {
+    margin: 0.5rem 0;
+}
+
+.link-list a {
+    text-decoration: none;
+    color: #90e992;
+    font-weight: bold;
+}
+
+.link-list a:hover {
+    text-decoration: underline;
+    color: #333;
+}
+
+footer {
+    text-align: center;
+    padding: 100px 0px 100px 0px;
+    background-color: #181818;
+    color: black;
+}
