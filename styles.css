@@ -12,6 +12,8 @@ header {
     background-color: #24df28;
     color: black;
     text-align: center;
+    position: fixed;
+    width: 100vw;
 }
 
 main {
