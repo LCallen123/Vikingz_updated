@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BuildingRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.render</a> &gt; <span class="el_source">BuildingRenderer.java</span></div><h1>BuildingRenderer.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.render;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.vikingz.unitycoon.audio.GameSounds;
+import com.vikingz.unitycoon.building.Building;
+import com.vikingz.unitycoon.building.BuildingInfo;
+import com.vikingz.unitycoon.building.BuildingStats;
+import com.vikingz.unitycoon.building.buildings.AcademicBuilding;
+import com.vikingz.unitycoon.building.buildings.AccommodationBuilding;
+import com.vikingz.unitycoon.building.buildings.FoodBuilding;
+import com.vikingz.unitycoon.building.buildings.RecreationalBuilding;
+import com.vikingz.unitycoon.global.GameGlobals;
+import com.vikingz.unitycoon.util.Point;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * This class is in charge of drawing Buildings in the game.
+ *
+ * &lt;p&gt;This class also does the collision calculations for buildings which make sure that the user
+ * is unable to place buildings on top of each other, as well as using right click to be able to
+ * remove the buildings from the game.
+ */
+public class BuildingRenderer {
+
+  // Used to draw buildings textures
+  private final SpriteBatch batch;
+
+  // X and Y values used to place buildings
+  private float previewX;
+  private float previewY;
+
+  // If building is being placed by user
+  private boolean isPreviewing;
+
+  // List of all buildings placed and needs rendering
+  private final List&lt;Building&gt; placedBuildings;
+
+  // Texture of Building to be placed
+  private TextureRegion selectedTexture;
+
+  // Size of the building SCREEN_BUILDING_SIZExSCREEN_BUILDING_SIZE
+  private static final int SCREEN_BUILDING_SIZE = 128;
+
+  //Current Building being placed information
+<span class="nc" id="L50">  private BuildingInfo currentBuildingInfo = null;</span>
+
+  // GameRender used to get mouse position and background tiles
+  private final GameRenderer gameRenderer;
+
+  /**
+   * Creates a new Building Renderer.
+   *
+   * @param gameRenderer Parent renderer {@code GameRenderer}
+   */
+<span class="nc" id="L60">  public BuildingRenderer(GameRenderer gameRenderer) {</span>
+<span class="nc" id="L61">    this.gameRenderer = gameRenderer;</span>
+<span class="nc" id="L62">    batch = new SpriteBatch();</span>
+<span class="nc" id="L63">    isPreviewing = false;</span>
+<span class="nc" id="L64">    placedBuildings = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L65">    selectedTexture = null;</span>
+<span class="nc" id="L66">  }</span>
+
+  /**
+   * Renders buildings.
+   *
+   * @param delta Time since last frame
+   */
+  public void render(float delta) {
+<span class="nc" id="L74">    batch.begin();</span>
+
+    // Draw all placed textures
+<span class="nc bnc" id="L77" title="All 2 branches missed.">    for (Building building : placedBuildings) {</span>
+<span class="nc" id="L78">      batch.draw(building.getTexture(), building.getX(), building.getY());</span>
+<span class="nc" id="L79">    }</span>
+
+<span class="nc" id="L81">    checkBuildings();</span>
+
+<span class="nc" id="L83">    batch.end();</span>
+<span class="nc" id="L84">  }</span>
+
+  /**
+   * Checks if the user is currently adding or removing buildings.
+   */
+  private void checkBuildings() {
+    // Update preview position to follow the mouse cursor
+<span class="nc bnc" id="L91" title="All 4 branches missed.">    if (isPreviewing &amp;&amp; selectedTexture != null) {</span>
+
+      // Makes sure that the mouse is in the center of the building texture
+<span class="nc" id="L94">      float centerOffset = ((float) SCREEN_BUILDING_SIZE / 2) * gameRenderer.getViewportScaling();</span>
+<span class="nc" id="L95">      Point previewPoint = snapBuildingToGrid(</span>
+<span class="nc" id="L96">          Gdx.input.getX() - centerOffset,</span>
+<span class="nc" id="L97">          Gdx.input.getY() + centerOffset</span>
+      );
+
+<span class="nc" id="L100">      previewX = previewPoint.getX();</span>
+<span class="nc" id="L101">      previewY = previewPoint.getY();</span>
+
+      // If we cannot place here due to collision or balance then give visual feedback
+<span class="nc" id="L104">      if (</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">          !checkCollisions(previewX, previewY)</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">              || GameGlobals.BALANCE &lt; currentBuildingInfo.getBuildingCost()</span>
+      ) {
+        // Add tint to sprite
+<span class="nc" id="L109">        batch.setColor(new Color(1f, 0.25f, 0.25f, 1f));</span>
+      }
+
+      // Draw the preview texture if one is selected
+<span class="nc" id="L113">      batch.draw(selectedTexture, previewX, previewY);</span>
+
+      // Remove the tint
+<span class="nc" id="L116">      batch.setColor(Color.WHITE);</span>
+    }
+
+
+    // Removes the building the user right clicks on
+<span class="nc bnc" id="L121" title="All 4 branches missed.">    if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) &amp;&amp; selectedTexture == null) {</span>
+<span class="nc" id="L122">      System.out.println(&quot;RightClick&quot;);</span>
+
+<span class="nc" id="L124">      Building buildingToRemove = getBuildingAtPoint(Gdx.input.getX(), Gdx.input.getY());</span>
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">      if (buildingToRemove != null) {</span>
+        // Show confirm box before removing
+<span class="nc" id="L128">        gameRenderer.getGameScreen().setPaused(true);</span>
+<span class="nc" id="L129">        gameRenderer.getGameScreen().getUiRenderer().showPopup(</span>
+<span class="nc" id="L130">            &quot;Confirm &quot; + buildingToRemove.getBuildingInfo().getName() + &quot; Removal&quot;,</span>
+            &quot;Cancel&quot;,
+<span class="nc" id="L132">            () -&gt; gameRenderer.getGameScreen().setPaused(false),</span>
+<span class="nc" id="L133">            &quot;Remove\n+&quot; + getBuildingRefundAmount(buildingToRemove) + &quot; Money&quot;, () -&gt; {</span>
+<span class="nc" id="L134">              removeBuilding(buildingToRemove, true);</span>
+<span class="nc" id="L135">              gameRenderer.getGameScreen().setPaused(false);</span>
+<span class="nc" id="L136">            }</span>
+        );
+      }
+    }
+
+    // Check for left mouse click to place the texture
+<span class="nc bnc" id="L142" title="All 4 branches missed.">    if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) &amp;&amp; selectedTexture != null) {</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">      if (checkCollisions(previewX, previewY)) {</span>
+
+        // Check if the user has enough money to buy that building
+<span class="nc" id="L146">        float balanceAfterPurchase = GameGlobals.BALANCE - currentBuildingInfo.getBuildingCost();</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (balanceAfterPurchase &lt; 0) {</span>
+<span class="nc" id="L148">          System.out.println(&quot;Not enough money to buy building!!&quot;);</span>
+<span class="nc" id="L149">          GameSounds.playPlaceError();</span>
+        } else {
+          // Plays the sound of a building being places
+<span class="nc" id="L152">          GameSounds.playPlacedBuilding();</span>
+
+          // Adds a building of the correct type to the list of buildings that are
+          // to be drawn to the screen.
+<span class="nc bnc" id="L156" title="All 6 branches missed.">          switch (currentBuildingInfo.getBuildingType()) {</span>
+            case ACADEMIC:
+<span class="nc" id="L158">              placedBuildings.add(new AcademicBuilding(</span>
+                  selectedTexture, new Point(previewX, previewY), currentBuildingInfo));
+<span class="nc" id="L160">              break;</span>
+
+            case ACCOMMODATION:
+<span class="nc" id="L163">              placedBuildings.add(new AccommodationBuilding(</span>
+                  selectedTexture, new Point(previewX, previewY), currentBuildingInfo));
+<span class="nc" id="L165">              break;</span>
+
+            case RECREATIONAL:
+<span class="nc" id="L168">              placedBuildings.add(new RecreationalBuilding(</span>
+                  selectedTexture, new Point(previewX, previewY), currentBuildingInfo,
+<span class="nc" id="L170">                  currentBuildingInfo.getCoinsPerSecond()));</span>
+<span class="nc" id="L171">              break;</span>
+
+            case FOOD:
+<span class="nc" id="L174">              placedBuildings.add(new FoodBuilding(</span>
+                  selectedTexture, new Point(previewX, previewY), currentBuildingInfo,
+<span class="nc" id="L176">                  currentBuildingInfo.getCoinsPerSecond()));</span>
+<span class="nc" id="L177">              break;</span>
+
+            case NONE:
+<span class="nc" id="L180">              System.out.println(&quot;This shouldn't have happened hmm&quot;);</span>
+<span class="nc" id="L181">              break;</span>
+
+            default:
+              break;
+          }
+
+          // Update stats
+<span class="nc" id="L188">          GameGlobals.BALANCE -= currentBuildingInfo.getBuildingCost();</span>
+<span class="nc" id="L189">          GameGlobals.STUDENTS += currentBuildingInfo.getNumberOfStudents();</span>
+<span class="nc" id="L190">          incrementBuildingsCount(currentBuildingInfo.getBuildingType(), 1);</span>
+
+        }
+
+        // The building is no longer being placed
+<span class="nc" id="L195">        clearSelectedBuilding();</span>
+<span class="nc" id="L196">      } else {</span>
+        // If building is colliding with something
+<span class="nc" id="L198">        System.err.println(&quot;Player Trying to place on a collision piece&quot;);</span>
+<span class="nc" id="L199">        GameSounds.playPlaceError();</span>
+      }
+    }
+<span class="nc" id="L202">  }</span>
+
+  /**
+   * Get the amount a building should be refunded for.
+   */
+  private int getBuildingRefundAmount(Building building) {
+<span class="nc" id="L208">    return Math.round(building.getBuildingInfo().getBuildingCost() * 0.75f);</span>
+  }
+
+  /**
+   * Remove a building.
+   */
+  public void removeBuilding(Building buildingToRemove, boolean refund) {
+<span class="nc bnc" id="L215" title="All 2 branches missed.">    if (buildingToRemove != null) {</span>
+<span class="nc" id="L216">      incrementBuildingsCount(buildingToRemove.getBuildingType(), -1);</span>
+<span class="nc" id="L217">      placedBuildings.remove(buildingToRemove);</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">      if (refund) {</span>
+<span class="nc" id="L219">        GameGlobals.BALANCE += getBuildingRefundAmount(buildingToRemove);</span>
+      }
+    } else {
+<span class="nc" id="L222">      System.out.println(&quot;building was null: &quot; + null);</span>
+    }
+<span class="nc" id="L224">  }</span>
+
+  /**
+   * Selects a building by building id.
+   *
+   * @param buildingType buildingType of the building that the user wants to place down
+   * @param index        int the index of where it is in the dictionary
+   */
+  public void selectBuilding(BuildingStats.BuildingType buildingType, int index) {
+<span class="nc" id="L233">    isPreviewing = true;</span>
+<span class="nc" id="L234">    BuildingInfo newBuilding = BuildingStats.getInfo(buildingType, index);</span>
+<span class="nc" id="L235">    selectedTexture = BuildingStats.getTextureOfBuilding(</span>
+<span class="nc" id="L236">        BuildingStats.BuildingDict.get(buildingType)[index]);</span>
+
+<span class="nc bnc" id="L238" title="All 2 branches missed.">    if (selectedTexture == null) {</span>
+<span class="nc" id="L239">      System.err.println(&quot;ERROR: Could not select building: &quot;</span>
+<span class="nc" id="L240">          + BuildingStats.BuildingDict.get(buildingType)[index]);</span>
+    }
+
+<span class="nc" id="L243">    currentBuildingInfo = newBuilding;</span>
+<span class="nc" id="L244">  }</span>
+
+  /**
+   * Increments the counter on the screen for the corresponding building that has been placed.
+   *
+   * @param type   Type of the building that has been added
+   * @param amount to increase it by, this can be negative to decrease
+   */
+  private void incrementBuildingsCount(BuildingStats.BuildingType type, int amount) {
+<span class="nc bnc" id="L253" title="All 5 branches missed.">    switch (type) {</span>
+<span class="nc" id="L254">      case ACADEMIC -&gt; GameGlobals.ACADEMIC_BUILDINGS_COUNT += amount;</span>
+<span class="nc" id="L255">      case ACCOMMODATION -&gt; GameGlobals.ACCOMMODATION_BUILDINGS_COUNT += amount;</span>
+<span class="nc" id="L256">      case RECREATIONAL -&gt; GameGlobals.RECREATIONAL_BUILDINGS_COUNT += amount;</span>
+<span class="nc" id="L257">      case FOOD -&gt; GameGlobals.FOOD_BUILDINGS_COUNT += amount;</span>
+<span class="nc" id="L258">      default -&gt; System.err.println(&quot;Building type doesnt exist!&quot;);</span>
+    }
+<span class="nc" id="L260">  }</span>
+
+  /**
+   * Snaps the position to coordinates in the grid.
+   *
+   * @param x screen X coordinate
+   * @param y screen Y coordinate
+   * @return Point new coordinates that occur on an intersection of the tiles in the background
+   */
+  private Point snapBuildingToGrid(float x, float y) {
+    // 30 rows
+    // 56 cols
+<span class="nc" id="L272">    int gridSize = 32;</span>
+<span class="nc" id="L273">    Point translatedPoint = gameRenderer.translateCoords(new Point(x, y));</span>
+
+<span class="nc" id="L275">    float newX = Math.round(translatedPoint.getX() / gridSize) * gridSize;</span>
+<span class="nc" id="L276">    float newY = Math.round(translatedPoint.getY() / gridSize) * gridSize;</span>
+
+<span class="nc" id="L278">    return new Point(newX, newY);</span>
+  }
+
+  /**
+   * Checks whether the user is trying to place a building on another building or not on grass.
+   *
+   * @param x grid X coordinate
+   * @param y grid Y coordinate
+   * @return if it is clear to place the building
+   */
+  private boolean checkCollisions(float x, float y) {
+    //Checks building exists in spot
+<span class="nc" id="L290">    float roundedX = Math.round(x);</span>
+<span class="nc" id="L291">    float roundedY = Math.round(y);</span>
+
+<span class="nc bnc" id="L293" title="All 2 branches missed.">    for (Building building : this.placedBuildings) {</span>
+<span class="nc" id="L294">      if (</span>
+          (
+<span class="nc bnc" id="L296" title="All 2 branches missed.">              roundedX &gt; (building.getX() - SCREEN_BUILDING_SIZE)</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">                  &amp;&amp; roundedX &lt; (building.getX() + SCREEN_BUILDING_SIZE)</span>
+          )
+<span class="nc bnc" id="L299" title="All 2 branches missed.">              &amp;&amp; (roundedY &gt; (building.getY() - SCREEN_BUILDING_SIZE)</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">              &amp;&amp; roundedY &lt; (building.getY() + SCREEN_BUILDING_SIZE)</span>
+          )
+      ) {
+<span class="nc" id="L303">        return false;</span>
+      }
+<span class="nc" id="L305">    }</span>
+
+<span class="nc" id="L307">    BackgroundRenderer backgroundRenderer = gameRenderer.getBackgroundRenderer();</span>
+<span class="nc" id="L308">    String map = backgroundRenderer.getMap();</span>
+
+    //CheckTiles on the ground are grassBlocks
+<span class="nc" id="L311">    int indexLowY = Math.round((roundedY - 64) / 32) + 3;</span>
+<span class="nc" id="L312">    int indexLowX = Math.round((roundedX - 64) / 32) + 2;</span>
+<span class="nc" id="L313">    int lengthTiles = map.split(&quot;\n&quot;).length;</span>
+<span class="nc" id="L314">    char[][] tileSet = new char[4][4];</span>
+<span class="nc bnc" id="L315" title="All 2 branches missed.">    for (int coordY = 0; coordY &lt; 4; coordY++) {</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">      for (int coordX = 0; coordX &lt; 4; coordX++) {</span>
+        try {
+<span class="nc" id="L318">          tileSet[coordY][coordX] = map.split(&quot;\n&quot;)[lengthTiles - (indexLowY + coordY)]</span>
+<span class="nc" id="L319">              .charAt(indexLowX + coordX);</span>
+<span class="nc" id="L320">        } catch (Exception ignored) {</span>
+<span class="nc" id="L321">          continue;</span>
+<span class="nc" id="L322">        }</span>
+      }
+    }
+<span class="nc bnc" id="L325" title="All 2 branches missed.">    for (char[] itemI : tileSet) {</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">      for (char itemJ : itemI) {</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">        if (!backgroundRenderer.isGrass(itemJ)) {</span>
+<span class="nc" id="L328">          return false;</span>
+        }
+      }
+    }
+
+<span class="nc" id="L333">    return true;</span>
+  }
+
+  /**
+   * Gets the building at a screen coordinate.
+   *
+   * @param mouseX screen X coordinate
+   * @param mouseY screen Y coordinate
+   * @return Building at the coords
+   */
+  private Building getBuildingAtPoint(float mouseX, float mouseY) {
+<span class="nc" id="L344">    Point translatedPoint = gameRenderer.translateCoords(new Point(mouseX, mouseY));</span>
+
+<span class="nc" id="L346">    float x = translatedPoint.getX();</span>
+<span class="nc" id="L347">    float y = translatedPoint.getY();</span>
+
+<span class="nc bnc" id="L349" title="All 2 branches missed.">    for (Building building : this.placedBuildings) {</span>
+
+<span class="nc" id="L351">      float bx = building.getX();</span>
+<span class="nc" id="L352">      float by = building.getY();</span>
+
+<span class="nc bnc" id="L354" title="All 2 branches missed.">      if (</span>
+<span class="nc bnc" id="L355" title="All 4 branches missed.">          (x &gt; bx &amp;&amp; x &lt; (bx + building.getWidth()))</span>
+<span class="nc bnc" id="L356" title="All 2 branches missed.">              &amp;&amp; (y &gt; by &amp;&amp; y &lt; (by + building.getHeight()))</span>
+      ) {
+<span class="nc" id="L358">        return building;</span>
+      }
+<span class="nc" id="L360">    }</span>
+<span class="nc" id="L361">    return null;</span>
+  }
+
+  /**
+   * Call on window resize.
+   */
+  public void resize(int width, int height) {
+<span class="nc" id="L368">  }</span>
+
+  /**
+   * Clear currently selected building to place.
+   */
+  public void clearSelectedBuilding() {
+<span class="nc" id="L374">    isPreviewing = false;</span>
+<span class="nc" id="L375">    currentBuildingInfo = null;</span>
+<span class="nc" id="L376">    selectedTexture = null;</span>
+<span class="nc" id="L377">  }</span>
+
+  /**
+   * Gets the current list of placed buildings.
+   */
+  public List&lt;Building&gt; getPlaceBuildings() {
+<span class="nc" id="L383">    return placedBuildings;</span>
+  }
+
+  /**
+   * Dispose building for garbage collection.
+   */
+  public void dispose() {
+<span class="nc" id="L390">    batch.dispose();</span>
+<span class="nc" id="L391">  }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

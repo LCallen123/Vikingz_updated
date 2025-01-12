@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LeaderboardUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.util</a> &gt; <span class="el_source">LeaderboardUtil.java</span></div><h1>LeaderboardUtil.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.util;
+
+import com.vikingz.unitycoon.annotations.DebugMethodExcludeGeneratedJacoco;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.stream.Stream;
+
+/**
+ * Class to for leaderboard functions.
+ */
+<span class="nc" id="L11">public class LeaderboardUtil {</span>
+  /**
+   * Class to represent a leaderboard record.
+   */
+  public static class LeaderboardRecord {
+    private final String name;
+    private final int score;
+
+    /**
+     * Create blank leaderboard record, this will not be shown.
+     */
+<span class="fc" id="L22">    public LeaderboardRecord() {</span>
+<span class="fc" id="L23">      this.name = null;</span>
+<span class="fc" id="L24">      this.score = -1;</span>
+<span class="fc" id="L25">    }</span>
+
+    /**
+     * Create leaderboard record with specified data.
+     */
+<span class="fc" id="L30">    public LeaderboardRecord(String name, int score) {</span>
+<span class="fc" id="L31">      this.name = name;</span>
+<span class="fc" id="L32">      this.score = score;</span>
+<span class="fc" id="L33">    }</span>
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">      if (this == obj) {</span>
+<span class="nc" id="L38">        return true;</span>
+      }
+<span class="pc bpc" id="L40" title="2 of 4 branches missed.">      if (obj == null || getClass() != obj.getClass()) {</span>
+<span class="nc" id="L41">        return false;</span>
+      }
+
+<span class="fc" id="L44">      LeaderboardRecord that = (LeaderboardRecord) obj;</span>
+<span class="fc" id="L45">      return score == that.score</span>
+<span class="fc bfc" id="L46" title="All 6 branches covered.">          &amp;&amp; name != null ? name.equals(that.name) : that.name == null;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc bfc" id="L51" title="All 2 branches covered.">      int result = name != null ? name.hashCode() : 0;</span>
+<span class="fc" id="L52">      result = 31 * result + score;</span>
+<span class="fc" id="L53">      return result;</span>
+    }
+  }
+
+  /**
+   * Generate an empty leaderboard, for initialisation.
+   *
+   * @param no amount of records in the leaderboard
+   */
+  public static LeaderboardRecord[] generateBlankLeaderboard(int no) {
+<span class="fc" id="L63">    return Stream.generate(LeaderboardRecord::new).limit(no).toArray(LeaderboardRecord[]::new);</span>
+  }
+
+  /**
+   * Sort the leaderboard into score descending order.
+   *
+   * @param records the leaderboard to sort in place.
+   */
+  public static void sortLeaderboard(LeaderboardRecord[] records) {
+<span class="fc" id="L72">    Arrays.sort(records,</span>
+<span class="fc" id="L73">        Comparator.comparing((LeaderboardRecord record) -&gt; record.score).reversed());</span>
+<span class="fc" id="L74">  }</span>
+
+  /**
+   * Check if this score could be in the leaderboard.
+   */
+  public static boolean onLeaderboard(LeaderboardRecord[] leaderboard, int score) {
+<span class="fc bfc" id="L80" title="All 2 branches covered.">    return leaderboard[leaderboard.length - 1].score &lt; score;</span>
+  }
+
+  /**
+   * Update the leaderboard with the new record if it is in the top 5 records.
+   *
+   * @return true if the leaderboard was updated
+   */
+  public static boolean updateLeaderboard(
+      LeaderboardRecord[] leaderboard,
+      LeaderboardRecord record
+  ) {
+    // If score is worse than worst score then no update
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    if (!onLeaderboard(leaderboard, record.score)) {</span>
+<span class="fc" id="L94">      return false;</span>
+    }
+
+    // Go though each score from worst to best
+<span class="fc bfc" id="L98" title="All 2 branches covered.">    for (int i = leaderboard.length - 1; i &gt; 0; i--) {</span>
+      // If the score is worse than the score above it then place it here
+<span class="fc bfc" id="L100" title="All 2 branches covered.">      if (leaderboard[i - 1].score &gt; record.score) {</span>
+<span class="fc" id="L101">        leaderboard[i] = record;</span>
+<span class="fc" id="L102">        return true;</span>
+      } else {
+        // If the score is better than the score above it then move the higher up score down
+<span class="fc" id="L105">        leaderboard[i] = leaderboard[i - 1];</span>
+      }
+    }
+
+    // If the for loop ends then this score must be the best so place it at the top
+<span class="fc" id="L110">    leaderboard[0] = record;</span>
+<span class="fc" id="L111">    return true;</span>
+  }
+
+  /**
+   * Print the leaderboard nicely formatted.
+   */
+  public static String leaderboardToString(LeaderboardRecord[] leaderboard) {
+<span class="fc" id="L118">    StringBuilder text = new StringBuilder();</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">    for (LeaderboardUtil.LeaderboardRecord record : leaderboard) {</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">      if (record.name != null) {</span>
+<span class="fc" id="L121">        text.append(record.name).append(&quot;: &quot;)</span>
+<span class="fc" id="L122">            .append(StatsCalculator.getFormattedSatisfaction(record.score)).append(&quot;\n&quot;);</span>
+      }
+    }
+<span class="fc bfc" id="L125" title="All 2 branches covered.">    return text.isEmpty() ? &quot;No Records\n&quot; : text.toString();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

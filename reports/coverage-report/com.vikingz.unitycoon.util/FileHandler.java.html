@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.util</a> &gt; <span class="el_source">FileHandler.java</span></div><h1>FileHandler.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.util;
+
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingType.ACADEMIC;
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingType.ACCOMMODATION;
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingType.FOOD;
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingType.NONE;
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingType.RECREATIONAL;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.google.gson.Gson;
+import com.vikingz.unitycoon.building.BuildingStats;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+/**
+ * This class handles loading in files.
+ *
+ * &lt;p&gt;Main use is to load in the map file and loading building information
+ */
+<span class="nc" id="L22">public class FileHandler {</span>
+  /**
+   * Object parser that has public variable to allow map json to dictionary.
+   */
+  @SuppressWarnings({&quot;checkstyle:MemberName&quot;, &quot;checkstyle:AbbreviationAsWordInName&quot;})
+  private static class BuildingParse {
+    public String[] ACADEMIC;
+    public String[] ACCOMMODATION;
+    public String[] RECREATIONAL;
+    public String[] FOOD;
+    public String[] NONE;
+  }
+
+  /**
+   * Object parser that has public variable to allow map json to dictionary.
+   */
+  @SuppressWarnings({&quot;checkstyle:MemberName&quot;, &quot;checkstyle:AbbreviationAsWordInName&quot;})
+<span class="fc" id="L39">  private static class TextureParse {</span>
+<span class="fc" id="L40">    public String textureAtlasLocation = &quot;textures/textureAtlases/buildingsAtlas.png&quot;;</span>
+<span class="fc" id="L41">    public int atlasBuildingSize = 128;</span>
+    ArrayList&lt;String&gt; buildings;
+    ArrayList&lt;String&gt; buildingPos;
+  }
+
+  /**
+   * Loads in the map from a file.
+   *
+   * @param fileName Name of the file to load in
+   * @return String The map
+   */
+  public static String loadMap(String fileName) {
+<span class="fc" id="L53">    String mapData = &quot;&quot;;</span>
+<span class="fc" id="L54">    FileHandle fileHandle = Gdx.files.internal(&quot;gameData/maps/&quot; + fileName + &quot;.txt&quot;);</span>
+
+    // Check if the file exists
+<span class="fc bfc" id="L57" title="All 2 branches covered.">    if (fileHandle.exists()) {</span>
+      // Read the content as a string
+<span class="fc" id="L59">      mapData = fileHandle.readString();</span>
+    } else {
+<span class="fc" id="L61">      System.out.println(&quot;File not found!: &quot; + fileHandle);</span>
+    }
+
+<span class="fc" id="L64">    return mapData;</span>
+  }
+
+  /**
+   * Loads Building information maps into static Dictionaries in BuildingStats.
+   */
+  public static void loadBuildings() {
+<span class="fc" id="L71">    FileHandle fileHandle = Gdx.files.internal(&quot;gameData/buildings/buildingInfo.json&quot;);</span>
+<span class="fc" id="L72">    FileHandle textureFileHandle = Gdx.files.internal(&quot;gameData/buildings/buildingsAtlasMap.json&quot;);</span>
+
+<span class="pc bpc" id="L74" title="2 of 4 branches missed.">    if (fileHandle.exists() &amp;&amp; textureFileHandle.exists()) {</span>
+      // Json handle
+<span class="fc" id="L76">      Gson gson = new Gson();</span>
+<span class="fc" id="L77">      BuildingParse[] buildingInfo = gson.fromJson(fileHandle.readString(), BuildingParse[].class);</span>
+
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">      if (buildingInfo.length != 6) {</span>
+<span class="nc" id="L80">        System.out.println(&quot;File corruption detected&quot;);</span>
+      }
+
+      // Name
+<span class="fc" id="L84">      BuildingStats.BuildingNameDict = new Hashtable&lt;&gt;();</span>
+<span class="fc" id="L85">      BuildingStats.BuildingNameDict.put(ACADEMIC, buildingInfo[0].ACADEMIC);</span>
+<span class="fc" id="L86">      BuildingStats.BuildingNameDict.put(ACCOMMODATION, buildingInfo[0].ACCOMMODATION);</span>
+<span class="fc" id="L87">      BuildingStats.BuildingNameDict.put(RECREATIONAL, buildingInfo[0].RECREATIONAL);</span>
+<span class="fc" id="L88">      BuildingStats.BuildingNameDict.put(FOOD, buildingInfo[0].FOOD);</span>
+<span class="fc" id="L89">      BuildingStats.BuildingNameDict.put(NONE, buildingInfo[0].NONE);</span>
+
+      // Price
+<span class="fc" id="L92">      BuildingStats.BuildingPriceDict = new Hashtable&lt;&gt;();</span>
+<span class="fc" id="L93">      BuildingStats.BuildingPriceDict.put(ACADEMIC, buildingInfo[1].ACADEMIC);</span>
+<span class="fc" id="L94">      BuildingStats.BuildingPriceDict.put(ACCOMMODATION, buildingInfo[1].ACCOMMODATION);</span>
+<span class="fc" id="L95">      BuildingStats.BuildingPriceDict.put(RECREATIONAL, buildingInfo[1].RECREATIONAL);</span>
+<span class="fc" id="L96">      BuildingStats.BuildingPriceDict.put(FOOD, buildingInfo[1].FOOD);</span>
+<span class="fc" id="L97">      BuildingStats.BuildingPriceDict.put(NONE, buildingInfo[1].NONE);</span>
+
+      // Students
+<span class="fc" id="L100">      BuildingStats.BuildingStudentDict = new Hashtable&lt;&gt;();</span>
+<span class="fc" id="L101">      BuildingStats.BuildingStudentDict.put(ACADEMIC, buildingInfo[2].ACADEMIC);</span>
+<span class="fc" id="L102">      BuildingStats.BuildingStudentDict.put(ACCOMMODATION, buildingInfo[2].ACCOMMODATION);</span>
+<span class="fc" id="L103">      BuildingStats.BuildingStudentDict.put(RECREATIONAL, buildingInfo[2].RECREATIONAL);</span>
+<span class="fc" id="L104">      BuildingStats.BuildingStudentDict.put(FOOD, buildingInfo[2].FOOD);</span>
+<span class="fc" id="L105">      BuildingStats.BuildingStudentDict.put(NONE, buildingInfo[2].NONE);</span>
+
+      // Satisfaction
+<span class="fc" id="L108">      BuildingStats.BuildingSatisfactionDict = new Hashtable&lt;&gt;();</span>
+<span class="fc" id="L109">      BuildingStats.BuildingSatisfactionDict.put(ACADEMIC, buildingInfo[3].ACADEMIC);</span>
+<span class="fc" id="L110">      BuildingStats.BuildingSatisfactionDict.put(ACCOMMODATION, buildingInfo[3].ACCOMMODATION);</span>
+<span class="fc" id="L111">      BuildingStats.BuildingSatisfactionDict.put(RECREATIONAL, buildingInfo[3].RECREATIONAL);</span>
+<span class="fc" id="L112">      BuildingStats.BuildingSatisfactionDict.put(FOOD, buildingInfo[3].FOOD);</span>
+<span class="fc" id="L113">      BuildingStats.BuildingSatisfactionDict.put(NONE, buildingInfo[3].NONE);</span>
+
+      // Coins
+<span class="fc" id="L116">      BuildingStats.BuildingCoinDict = new Hashtable&lt;&gt;();</span>
+<span class="fc" id="L117">      BuildingStats.BuildingCoinDict.put(ACADEMIC, buildingInfo[4].ACADEMIC);</span>
+<span class="fc" id="L118">      BuildingStats.BuildingCoinDict.put(ACCOMMODATION, buildingInfo[4].ACCOMMODATION);</span>
+<span class="fc" id="L119">      BuildingStats.BuildingCoinDict.put(RECREATIONAL, buildingInfo[4].RECREATIONAL);</span>
+<span class="fc" id="L120">      BuildingStats.BuildingCoinDict.put(FOOD, buildingInfo[4].FOOD);</span>
+<span class="fc" id="L121">      BuildingStats.BuildingCoinDict.put(NONE, buildingInfo[4].NONE);</span>
+
+      // Ids
+<span class="fc" id="L124">      BuildingStats.BuildingDict = new Hashtable&lt;&gt;();</span>
+<span class="fc" id="L125">      BuildingStats.BuildingDict.put(ACADEMIC, buildingInfo[5].ACADEMIC);</span>
+<span class="fc" id="L126">      BuildingStats.BuildingDict.put(ACCOMMODATION, buildingInfo[5].ACCOMMODATION);</span>
+<span class="fc" id="L127">      BuildingStats.BuildingDict.put(RECREATIONAL, buildingInfo[5].RECREATIONAL);</span>
+<span class="fc" id="L128">      BuildingStats.BuildingDict.put(FOOD, buildingInfo[5].FOOD);</span>
+<span class="fc" id="L129">      BuildingStats.BuildingDict.put(NONE, buildingInfo[5].NONE);</span>
+
+      // Passing child elements from types
+<span class="fc" id="L132">      ArrayList&lt;String&gt; idList = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">      for (String[] ids : BuildingStats.BuildingDict.values()) {</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (String id : ids) {</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">          if (id != null) {</span>
+<span class="fc" id="L136">            idList.add(id);</span>
+          }
+        }
+<span class="fc" id="L139">      }</span>
+<span class="fc" id="L140">      BuildingStats.BuildingIds = idList;</span>
+
+      // Textures
+<span class="fc" id="L143">      String textureFileRead = textureFileHandle.readString();</span>
+
+<span class="fc" id="L145">      TextureParse textureParse = gson.fromJson(textureFileRead, TextureParse.class);</span>
+<span class="fc" id="L146">      BuildingStats.textureAtlasLocation = textureParse.textureAtlasLocation;</span>
+<span class="fc" id="L147">      BuildingStats.atlasBuildingSize = textureParse.atlasBuildingSize;</span>
+
+<span class="fc" id="L149">      BuildingStats.BuildingTextureMap = new Hashtable&lt;&gt;();</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">      for (int i = 0; i &lt; textureParse.buildings.size(); i++) {</span>
+<span class="fc" id="L151">        int[] convertValue = new int[]{</span>
+<span class="fc" id="L152">            Integer.parseInt(textureParse.buildingPos.get(i).split(&quot;,&quot;)[0]),</span>
+<span class="fc" id="L153">            Integer.parseInt(textureParse.buildingPos.get(i).split(&quot;,&quot;)[1]),</span>
+        };
+<span class="fc" id="L155">        BuildingStats.BuildingTextureMap.put(textureParse.buildings.get(i), convertValue);</span>
+      }
+
+<span class="fc" id="L158">      System.out.println(&quot;Successfully Loaded Buildings&quot;);</span>
+<span class="fc" id="L159">    } else {</span>
+<span class="nc" id="L160">      System.err.println(&quot;File not found!: &quot; + fileHandle);</span>
+    }
+<span class="fc" id="L162">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

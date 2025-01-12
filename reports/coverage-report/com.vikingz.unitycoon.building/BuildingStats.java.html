@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BuildingStats.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.building</a> &gt; <span class="el_source">BuildingStats.java</span></div><h1>BuildingStats.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.building;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import java.util.ArrayList;
+import java.util.Hashtable;
+
+/**
+ * This class contains all the static data or data loaded from a file.
+ */
+<span class="nc" id="L12">public class BuildingStats {</span>
+  /**
+   * Enum of types of buildings available.
+   */
+<span class="fc" id="L16">  public enum BuildingType {</span>
+<span class="fc" id="L17">    NONE, ACADEMIC, ACCOMMODATION, RECREATIONAL, FOOD,</span>
+  }
+
+  /**
+   * Dictionaries of all the buildings in files.
+   * &lt;li&gt; BuildingNameDict contains the full names of every Building, lookup using BuildingType
+   * &lt;li&gt; BuildingPriceDict contains the price of every building, lookup using BuildingType
+   * &lt;li&gt; BuildingSatisfactionDict contains the satisfaction of every building, lookup using
+   * BuildingType
+   * &lt;li&gt; BuildingStudentDict contains the student increase of every building, lookup using
+   * BuildingType
+   * &lt;li&gt; BuildingCoinDict contains the coins per second of every building, lookup using
+   * BuildingType
+   * &lt;li&gt; BuildingDict contains the ShortHandNames of every building, lookup using BuildingType
+   * &lt;li&gt; BuildingTextureMap contains the positions of every building's Texture, lookup using
+   * String of the buildings ShortHandName
+   */
+  // Loaded from buildingInfo.json
+  public static Hashtable&lt;BuildingType, String[]&gt; BuildingNameDict;
+  public static Hashtable&lt;BuildingStats.BuildingType, String[]&gt; BuildingPriceDict;
+  public static Hashtable&lt;BuildingStats.BuildingType, String[]&gt; BuildingSatisfactionDict;
+  public static Hashtable&lt;BuildingStats.BuildingType, String[]&gt; BuildingStudentDict;
+  public static Hashtable&lt;BuildingStats.BuildingType, String[]&gt; BuildingCoinDict;
+  public static Hashtable&lt;BuildingStats.BuildingType, String[]&gt; BuildingDict;
+  public static ArrayList&lt;String&gt; BuildingIds;
+
+  //Loaded from TextureAtlasMap.json
+  public static Hashtable&lt;String, int[]&gt; BuildingTextureMap;
+
+  //Textures information
+  public static String textureAtlasLocation;
+<span class="fc" id="L48">  public static int atlasBuildingSize = 128;</span>
+
+
+  /**
+   * Uses the params to lookup and convert values into creating a new BuildingInfo Object using
+   * the lookup dictionaries.
+   *
+   * @param buildingType contains Type of building from BuildingStats
+   * @param index        int contains the index of which building is being select from Dictionary
+   * @return BuildingInfo
+   */
+  public static BuildingInfo getInfo(BuildingStats.BuildingType buildingType, int index) {
+    // Price
+    int price;
+    try {
+<span class="fc" id="L63">      price = Integer.parseInt(BuildingPriceDict.get(buildingType)[index]);</span>
+<span class="fc" id="L64">    } catch (Exception e) {</span>
+<span class="fc" id="L65">      price = 100;</span>
+<span class="fc" id="L66">    }</span>
+
+    // Satisfaction
+    float satisfaction;
+    try {
+<span class="fc" id="L71">      satisfaction = Float.parseFloat(BuildingSatisfactionDict.get(buildingType)[index]);</span>
+<span class="fc" id="L72">    } catch (Exception e) {</span>
+<span class="fc" id="L73">      satisfaction = 0f;</span>
+<span class="fc" id="L74">    }</span>
+
+    // Student
+    int student;
+    try {
+<span class="fc" id="L79">      student = Integer.parseInt(BuildingStudentDict.get(buildingType)[index]);</span>
+<span class="fc" id="L80">    } catch (Exception e) {</span>
+<span class="fc" id="L81">      student = 0;</span>
+<span class="fc" id="L82">    }</span>
+
+    // Coins
+    int coins;
+    try {
+<span class="fc" id="L87">      coins = Integer.parseInt(BuildingCoinDict.get(buildingType)[index]);</span>
+<span class="fc" id="L88">    } catch (Exception e) {</span>
+<span class="fc" id="L89">      coins = 0;</span>
+<span class="fc" id="L90">    }</span>
+
+    try {
+<span class="fc" id="L93">      return new BuildingInfo(</span>
+<span class="fc" id="L94">          BuildingDict.get(buildingType)[index],</span>
+<span class="fc" id="L95">          BuildingNameDict.get(buildingType)[index],</span>
+          buildingType,
+          price,
+          satisfaction,
+          student,
+          coins
+      );
+<span class="fc" id="L102">    } catch (Exception e) {</span>
+<span class="fc" id="L103">      return null;</span>
+    }
+  }
+
+  /**
+   * This class Creates the Texture Image for the Building to be drawn with, this uses a lookup
+   * Dictionary created from json file.
+   *
+   * @param id String name of the building
+   * @return TextureRegion
+   */
+  public static TextureRegion getTextureOfBuilding(String id) {
+    // Load your 64x64 PNG
+<span class="fc" id="L116">    Texture textureAtlas = new Texture(Gdx.files.internal(textureAtlasLocation));</span>
+
+    try {
+<span class="fc" id="L119">      return new TextureRegion(</span>
+          textureAtlas,
+<span class="fc" id="L121">          atlasBuildingSize * BuildingTextureMap.get(id)[0],</span>
+<span class="fc" id="L122">          atlasBuildingSize * BuildingTextureMap.get(id)[1],</span>
+          atlasBuildingSize,
+          atlasBuildingSize
+      );
+<span class="fc" id="L126">    } catch (Exception e) {</span>
+<span class="fc" id="L127">      return null;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

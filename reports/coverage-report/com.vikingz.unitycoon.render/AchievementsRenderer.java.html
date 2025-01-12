@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AchievementsRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.render</a> &gt; <span class="el_source">AchievementsRenderer.java</span></div><h1>AchievementsRenderer.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.render;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.vikingz.unitycoon.achievement.Achievement;
+import com.vikingz.unitycoon.achievement.AchievementsManager;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Class to render the achievement badges.
+ */
+public class AchievementsRenderer {
+<span class="nc" id="L24">  private static final Color DISABLED_COLOUR = new Color(0.3f, 0.3f, 0.3f, 0.85f);</span>
+
+  private final Viewport viewport;
+  private final Stage stage;
+  private final List&lt;Image&gt; achievementLogos;
+  private final AchievementsManager achievementsManager;
+
+  /**
+   * Initialise the achievement's renderer.
+   *
+   * &lt;p&gt;Creates the badges displayed for each achievement.
+   */
+<span class="nc" id="L36">  public AchievementsRenderer(AchievementsManager achievementsManager, Skin skin) {</span>
+<span class="nc" id="L37">    viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());</span>
+<span class="nc" id="L38">    stage = new Stage(viewport);</span>
+<span class="nc" id="L39">    achievementLogos = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L40">    this.achievementsManager = achievementsManager;</span>
+
+<span class="nc" id="L42">    Table container = new Table();</span>
+<span class="nc" id="L43">    container.setFillParent(true);</span>
+<span class="nc" id="L44">    container.right();</span>
+
+<span class="nc" id="L46">    Label label = new Label(&quot;Achievements&quot;, skin);</span>
+<span class="nc" id="L47">    label.setColor(Color.BLACK);</span>
+<span class="nc" id="L48">    container.add(label).colspan(2).pad(5).right().row();</span>
+
+<span class="nc bnc" id="L50" title="All 2 branches missed.">    for (Achievement achievement : achievementsManager.achievements) {</span>
+<span class="nc" id="L51">      Label achivementLabel = new Label(achievement.name, skin);</span>
+<span class="nc" id="L52">      achivementLabel.setColor(Color.BLACK);</span>
+<span class="nc" id="L53">      achivementLabel.setFontScale(1.2f);</span>
+<span class="nc" id="L54">      achivementLabel.setVisible(false);</span>
+
+<span class="nc" id="L56">      Image achievementLogo = new Image(achievement.logo);</span>
+<span class="nc" id="L57">      achievementLogo.addListener(new ClickListener() {</span>
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L60">        }</span>
+
+        @Override
+        public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+<span class="nc" id="L64">          achivementLabel.setVisible(true);</span>
+<span class="nc" id="L65">        }</span>
+
+        @Override
+        public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+<span class="nc" id="L69">          achivementLabel.setVisible(false);</span>
+<span class="nc" id="L70">        }</span>
+      });
+<span class="nc" id="L72">      achievementLogo.setColor(DISABLED_COLOUR);</span>
+
+<span class="nc" id="L74">      achievementLogos.add(achievementLogo);</span>
+<span class="nc" id="L75">      container.add(achivementLabel).right().pad(5, 0, 5, 10);</span>
+<span class="nc" id="L76">      container.add(achievementLogo).size(90, 90).pad(5, 10, 5, 15).row();</span>
+    }
+
+<span class="nc" id="L79">    stage.addActor(container);</span>
+<span class="nc" id="L80">  }</span>
+
+  /**
+   * Draw onto the screen.
+   *
+   * &lt;p&gt;This should be run every render
+   */
+  public void render(float delta) {
+<span class="nc" id="L88">    viewport.apply();</span>
+<span class="nc" id="L89">    stage.act(delta);</span>
+<span class="nc" id="L90">    stage.draw();</span>
+<span class="nc" id="L91">  }</span>
+
+  /**
+   * Update the badges colours, this should be called when an achievement has been reached.
+   */
+  public void update() {
+<span class="nc bnc" id="L97" title="All 2 branches missed.">    for (int i = 0; i &lt; achievementsManager.achievements.length; i++) {</span>
+<span class="nc" id="L98">      achievementLogos.get(i).setColor(</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">          achievementsManager.achievements[i].hasAchieved() ? Color.WHITE : DISABLED_COLOUR);</span>
+    }
+<span class="nc" id="L101">  }</span>
+
+  /**
+   * Dispose of the resources.
+   */
+  public void dispose() {
+<span class="nc" id="L107">    stage.dispose();</span>
+<span class="nc" id="L108">  }</span>
+
+  /**
+   * Get the input processor used.
+   */
+  public Stage getInputProcessor() {
+<span class="nc" id="L114">    return stage;</span>
+  }
+
+  /**
+   * Call when the window is resized.
+   */
+  public void resize(int width, int height) {
+    // Update the viewport when the window is resized
+<span class="nc" id="L122">    viewport.update(width, height, true);</span>
+<span class="nc" id="L123">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

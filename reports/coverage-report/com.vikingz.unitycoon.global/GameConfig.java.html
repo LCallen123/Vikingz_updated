@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.global</a> &gt; <span class="el_source">GameConfig.java</span></div><h1>GameConfig.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.global;
+
+import com.vikingz.unitycoon.annotations.DebugMethodExcludeGeneratedJacoco;
+import com.vikingz.unitycoon.util.LeaderboardUtil;
+import java.io.Serializable;
+
+/**
+ * This class contains all the config for the game, things such as width, height, sounds volume etc.
+ * This class is also used by the GameConfig Manager to save the current config so that when the
+ * user reloads the game their settings are still present.
+ *
+ * &lt;p&gt;Singleton class, meaning we instantiate it once and then that instance can be fetched
+ * statically by calling GameConfig.getInstance() and then from this instance we can retrieve
+ * settings. We have chose to do this because by not making it static we are able to implement
+ * Serializable which lets us save the GameConfig class as is without any other logic.
+ */
+public class GameConfig implements Serializable {
+
+  // Constants must be public to serialise
+  private int windowWidth;
+  private int windowHeight;
+
+  public float soundVolumeValue;
+  public float musicVolumeValue;
+
+  public LeaderboardUtil.LeaderboardRecord[] leaderboard;
+
+  // 31.5 rows
+  // 56 cols
+
+  // The single instance of GameConfig (eager initialization)
+<span class="fc" id="L32">  private static final GameConfig DEFAULT_GAME_CONFIG = new GameConfig(</span>
+<span class="fc" id="L33">      1792, 1008, 1f, 1f, LeaderboardUtil.generateBlankLeaderboard(5)</span>
+  );
+<span class="fc" id="L35">  private static GameConfig INSTANCE = DEFAULT_GAME_CONFIG.deepCopy();</span>
+
+  /**
+   * Reset the single instance of GameConfig.
+   */
+  @DebugMethodExcludeGeneratedJacoco
+  public static void resetInstance() {
+
+    INSTANCE = DEFAULT_GAME_CONFIG.deepCopy();
+  }
+
+  /**
+   * Create a deep copy of a GameConfig to reset it properly.
+   */
+  @DebugMethodExcludeGeneratedJacoco
+  public GameConfig deepCopy() {
+    return new GameConfig(windowWidth, windowHeight,
+        soundVolumeValue, musicVolumeValue,
+        leaderboard.clone());
+  }
+
+  // For JSON deserializing
+  private GameConfig() {
+  }
+
+  // Private constructor to prevent instantiation from outside
+  private GameConfig(int width, int height,
+                     float soundVolumeValue, float musicVolumeValue,
+<span class="fc" id="L63">                     LeaderboardUtil.LeaderboardRecord[] leaderboard) {</span>
+<span class="fc" id="L64">    this.windowWidth = width;</span>
+<span class="fc" id="L65">    this.windowHeight = height;</span>
+<span class="fc" id="L66">    this.soundVolumeValue = soundVolumeValue;</span>
+<span class="fc" id="L67">    this.musicVolumeValue = musicVolumeValue;</span>
+<span class="fc" id="L68">    this.leaderboard = leaderboard.clone();</span>
+
+    // Sort the leaderboard to ensure it is in order
+<span class="fc" id="L71">    LeaderboardUtil.sortLeaderboard(this.leaderboard);</span>
+<span class="fc" id="L72">  }</span>
+
+  /**
+   * Method to set the single instance of GameConfig.
+   *
+   * &lt;p&gt;Used when loading in settings
+   */
+  public void setInstance(GameConfig conf) {
+<span class="fc" id="L80">    INSTANCE = conf;</span>
+<span class="fc" id="L81">  }</span>
+
+  /**
+   * Method to get the single instance of GameConfig.
+   */
+  public static GameConfig getInstance() {
+<span class="fc" id="L87">    return INSTANCE;</span>
+  }
+
+  public int getWindowWidth() {
+<span class="fc" id="L91">    return windowWidth;</span>
+  }
+
+  public int getWindowHeight() {
+<span class="fc" id="L95">    return windowHeight;</span>
+  }
+
+  public LeaderboardUtil.LeaderboardRecord[] getLeaderboard() {
+<span class="fc" id="L99">    return leaderboard;</span>
+  }
+
+  /**
+   * Check if this score could be in the leaderboard.
+   */
+  public boolean isOnLeaderboard(int score) {
+<span class="fc" id="L106">    return LeaderboardUtil.onLeaderboard(leaderboard, score);</span>
+  }
+
+  public float getSoundVolumeValue() {
+<span class="fc" id="L110">    return soundVolumeValue;</span>
+  }
+
+  public float getMusicVolumeValue() {
+<span class="fc" id="L114">    return musicVolumeValue;</span>
+  }
+
+  public void setSoundVolumeValue(float soundVolumeValue) {
+<span class="fc" id="L118">    this.soundVolumeValue = soundVolumeValue;</span>
+<span class="fc" id="L119">  }</span>
+
+  public void setMusicVolumeValue(float musicVolumeValue) {
+<span class="fc" id="L122">    this.musicVolumeValue = musicVolumeValue;</span>
+<span class="fc" id="L123">  }</span>
+}
+
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

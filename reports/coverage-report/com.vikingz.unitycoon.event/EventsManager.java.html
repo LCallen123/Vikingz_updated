@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventsManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.event</a> &gt; <span class="el_source">EventsManager.java</span></div><h1>EventsManager.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.event;
+
+import com.badlogic.gdx.math.MathUtils;
+import com.vikingz.unitycoon.event.events.AlumniVisitEvent;
+import com.vikingz.unitycoon.event.events.BigOilEvent;
+import com.vikingz.unitycoon.event.events.CasinoEvent;
+import com.vikingz.unitycoon.event.events.ChampionshipWinEvent;
+import com.vikingz.unitycoon.event.events.CurriculumChangeEvent;
+import com.vikingz.unitycoon.event.events.EarthquakeEvent;
+import com.vikingz.unitycoon.event.events.ExamWeekEvent;
+import com.vikingz.unitycoon.event.events.FloodingEvent;
+import com.vikingz.unitycoon.event.events.GraduationEvent;
+import com.vikingz.unitycoon.event.events.GrantEvent;
+import com.vikingz.unitycoon.event.events.LongboiDeathEvent;
+import com.vikingz.unitycoon.event.events.PeacefulProtestEvent;
+import com.vikingz.unitycoon.event.events.ScolarEvent;
+import com.vikingz.unitycoon.event.events.StrikeEvent;
+import com.vikingz.unitycoon.event.events.UniPartyEvent;
+import com.vikingz.unitycoon.global.GameGlobals;
+import com.vikingz.unitycoon.render.UiRenderer;
+import com.vikingz.unitycoon.screens.GameScreen;
+import com.vikingz.unitycoon.util.Pair;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Class to manage random and static events showing and their callbacks.
+ */
+public class EventsManager {
+  UiRenderer uiRenderer;
+  GameScreen gameScreen;
+
+  /**
+   * Class containing an event and its helpful properties for calling.
+   */
+  public static class ManagedEvent {
+    private final Event event;
+
+    private final int timeCalled;
+    private boolean called;
+
+    /**
+     * Create a manged event given an event and the time it should be called.
+     */
+<span class="fc" id="L45">    public ManagedEvent(Event event, int timeCalled) {</span>
+<span class="fc" id="L46">      this.event = event;</span>
+<span class="fc" id="L47">      this.timeCalled = timeCalled;</span>
+<span class="fc" id="L48">      this.called = false;</span>
+<span class="fc" id="L49">    }</span>
+
+    public Event getEvent() {
+<span class="fc" id="L52">      return event.getEvent();</span>
+    }
+  }
+
+  /**
+   * List of events to be called during the game, this is initialised in the constructor.
+   */
+  private final List&lt;ManagedEvent&gt; events;
+
+  /**
+   * Initialise the event's manager.
+   */
+<span class="fc" id="L64">  public EventsManager(GameScreen gameScreen) {</span>
+<span class="fc" id="L65">    this.gameScreen = gameScreen;</span>
+<span class="fc" id="L66">    this.uiRenderer = gameScreen.getUiRenderer();</span>
+
+<span class="fc" id="L68">    List&lt;Class&lt;? extends Event&gt;&gt; goodEvents = List.of(</span>
+        GrantEvent.class,
+        ScolarEvent.class,
+        ChampionshipWinEvent.class
+    );
+<span class="fc" id="L73">    List&lt;Class&lt;? extends Event&gt;&gt; badEvents = List.of(</span>
+        LongboiDeathEvent.class,
+        ExamWeekEvent.class,
+        FloodingEvent.class,
+        EarthquakeEvent.class
+    );
+<span class="fc" id="L79">    List&lt;Class&lt;? extends Event&gt;&gt; neutralEvents = List.of(</span>
+        AlumniVisitEvent.class,
+        PeacefulProtestEvent.class,
+        UniPartyEvent.class,
+        CasinoEvent.class,
+        CurriculumChangeEvent.class,
+        StrikeEvent.class,
+        BigOilEvent.class
+    );
+
+    // This contains the time of each random event which will be shown in the game
+    // Add random events here
+<span class="fc" id="L91">    List&lt;Pair&lt;List&lt;Class&lt;? extends Event&gt;&gt;, Integer[]&gt;&gt; gameEvents = List.of(</span>
+        new Pair&lt;&gt;(
+            goodEvents,
+<span class="fc" id="L94">            new Integer[]{4 * 60, 3 * 60, 1 * 60}</span>
+        ),
+        new Pair&lt;&gt;(
+            badEvents,
+<span class="fc" id="L98">            new Integer[]{(int) (3.5 * 60), 2 * 60}</span>
+        ),
+        new Pair&lt;&gt;(
+            neutralEvents,
+<span class="fc" id="L102">            new Integer[]{(int) (4.5 * 60), (int) (2.5 * 60), (int) (0.5 * 60)}</span>
+        )
+    );
+
+    // Update the events list with randomly selected events as defined by `gameEvents`
+<span class="fc" id="L107">    events = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">    for (Pair&lt;List&lt;Class&lt;? extends Event&gt;&gt;, Integer[]&gt; entry : gameEvents) {</span>
+<span class="fc" id="L109">      List&lt;Class&lt;? extends Event&gt;&gt; classList = entry.first;</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">      for (Integer time : entry.second) {</span>
+        // Add a new instance of a randomly generated event at the specific time
+<span class="fc" id="L112">        events.add(new ManagedEvent(getRandomEvent(classList), time));</span>
+      }
+<span class="fc" id="L114">    }</span>
+
+    // Add static events here
+<span class="fc" id="L117">    events.add(new ManagedEvent(new GraduationEvent(gameScreen), 1));</span>
+<span class="fc" id="L118">  }</span>
+
+  /**
+   * Check if any events should be activated, if so display feedback to the user.
+   *
+   * &lt;p&gt;This should be run every render
+   */
+  public void render() {
+<span class="fc bfc" id="L126" title="All 2 branches covered.">    for (ManagedEvent event : events) {</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">      if (GameGlobals.ELAPSED_TIME &lt;= event.timeCalled) {</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (!event.called) {</span>
+<span class="fc" id="L129">          gameScreen.setPaused(true);</span>
+<span class="fc" id="L130">          uiRenderer.showEvent(event.getEvent());</span>
+<span class="fc" id="L131">          event.called = true;</span>
+        }
+      }
+<span class="fc" id="L134">    }</span>
+<span class="fc" id="L135">  }</span>
+
+  /**
+   * Get a random instance of an event from a list of possible event classes.
+   */
+  private Event getRandomEvent(List&lt;Class&lt;? extends Event&gt;&gt; eventList) {
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">    if (eventList.isEmpty()) {</span>
+<span class="nc" id="L142">      throw new RuntimeException(&quot;There are no events&quot;);</span>
+    }
+
+    try {
+<span class="fc" id="L146">      int randomIndex = MathUtils.random(0, eventList.size() - 1);</span>
+<span class="fc" id="L147">      return createEvent(eventList.get(randomIndex));</span>
+<span class="nc" id="L148">    } catch (Exception e) {</span>
+<span class="nc" id="L149">      throw new RuntimeException(e);</span>
+    }
+  }
+
+  /**
+   * Create an instance of an event from the class.
+   */
+  private Event createEvent(Class&lt;? extends Event&gt; eventClass) {
+    try {
+<span class="fc" id="L158">      return eventClass.getConstructor(GameScreen.class).newInstance(gameScreen);</span>
+<span class="nc" id="L159">    } catch (Exception e) {</span>
+<span class="nc" id="L160">      throw new RuntimeException(e);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

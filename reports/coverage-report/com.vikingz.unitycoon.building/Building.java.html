@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Building.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.building</a> &gt; <span class="el_source">Building.java</span></div><h1>Building.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.building;
+
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.vikingz.unitycoon.annotations.DebugMethodExcludeGeneratedJacoco;
+import com.vikingz.unitycoon.util.Point;
+import com.vikingz.unitycoon.util.StatsCalculator;
+
+/**
+ * Abstract class that represents all the buildings in the game.
+ */
+public abstract class Building {
+
+  // Building drawing properties
+  private TextureRegion texture;
+  private float posX;
+  private float posY;
+  private float width;
+  private float height;
+
+  // Building functional properties
+  private final BuildingStats.BuildingType buildingType;
+  private final float satisfactionMultiplier;
+  private final BuildingInfo buildingInfo;
+
+  /**
+   * Creates a new Building.
+   *
+   * @param texture      Texture
+   * @param p            Point p
+   * @param buildingInfo Building Info
+   */
+<span class="fc" id="L32">  public Building(TextureRegion texture, Point p, BuildingInfo buildingInfo) {</span>
+<span class="fc" id="L33">    this.posX = p.getX();</span>
+<span class="fc" id="L34">    this.posY = p.getY();</span>
+<span class="fc" id="L35">    this.width = 128;</span>
+<span class="fc" id="L36">    this.height = 128;</span>
+<span class="fc" id="L37">    this.texture = texture;</span>
+<span class="fc" id="L38">    this.buildingType = buildingInfo.getBuildingType();</span>
+<span class="fc" id="L39">    this.satisfactionMultiplier = buildingInfo.getSatisfactionMultiplier();</span>
+<span class="fc" id="L40">    this.buildingInfo = buildingInfo;</span>
+<span class="fc" id="L41">  }</span>
+
+  /**
+   * Calculates satisfaction logic.
+   *
+   * @param numberOfStudents Number of students
+   * @return Amount of satisfaction
+   */
+  public int calculateSatisfaction(int numberOfStudents) {
+<span class="fc" id="L50">    return StatsCalculator.calculateSatisfaction(numberOfStudents, this.satisfactionMultiplier);</span>
+  }
+
+  /**
+   * Gets the building information.
+   */
+  public BuildingInfo getBuildingInfo() {
+<span class="fc" id="L57">    return buildingInfo;</span>
+  }
+
+  /**
+   * Get the building width in pixels.
+   */
+  public float getWidth() {
+<span class="fc" id="L64">    return width;</span>
+  }
+
+  /**
+   * Set the pixel width of the building.
+   */
+  public void setWidth(float width) {
+<span class="fc" id="L71">    this.width = width;</span>
+<span class="fc" id="L72">  }</span>
+
+  /**
+   * Get the building height in pixels.
+   */
+  public float getHeight() {
+<span class="fc" id="L78">    return height;</span>
+  }
+
+  /**
+   * Set the pixel height of the building.
+   */
+  public void setHeight(float height) {
+<span class="fc" id="L85">    this.height = height;</span>
+<span class="fc" id="L86">  }</span>
+
+
+  /**
+   * Returns the current texture of the building used for seeing a preview of a building and
+   * rendering.
+   *
+   * @return TextureRegion Image of the building
+   */
+  public TextureRegion getTexture() {
+<span class="fc" id="L96">    return texture;</span>
+  }
+
+  /**
+   * Sets the Texture of the building.
+   *
+   * @param textureBuilding Image of the building
+   */
+  public void setTexture(TextureRegion textureBuilding) {
+<span class="fc" id="L105">    this.texture = textureBuilding;</span>
+<span class="fc" id="L106">  }</span>
+
+  /**
+   * Gets the current middle point of the building X coordinate.
+   */
+  public float getX() {
+<span class="fc" id="L112">    return posX;</span>
+  }
+
+  /**
+   * Sets the x coordinate of the building.
+   */
+  public void setX(float x) {
+<span class="fc" id="L119">    this.posX = x;</span>
+<span class="fc" id="L120">  }</span>
+
+  /**
+   * Gets the current middle point of the building Y coordinate.
+   */
+  public float getY() {
+<span class="fc" id="L126">    return posY;</span>
+  }
+
+  /**
+   * Sets the y coordinate of the building.
+   */
+  public void setY(float y) {
+<span class="fc" id="L133">    this.posY = y;</span>
+<span class="fc" id="L134">  }</span>
+
+  /**
+   * Gets the buildings buildingType ENUM.
+   *
+   * @return BuildingStats.BuildingType ENUM value
+   */
+  public BuildingStats.BuildingType getBuildingType() {
+<span class="fc" id="L142">    return buildingType;</span>
+  }
+
+  /**
+   * Display the class as a string.
+   */
+  @DebugMethodExcludeGeneratedJacoco
+  public String toString() {
+    String str = &quot;&quot;;
+    str += &quot;x: &quot; + this.posX;
+    str += &quot; y: &quot; + this.posY;
+    str += &quot; width: &quot; + this.width;
+    str += &quot; height: &quot; + this.height;
+    str += &quot; type: &quot; + this.buildingType;
+    return str;
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

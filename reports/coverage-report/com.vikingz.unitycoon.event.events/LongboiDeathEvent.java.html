@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LongboiDeathEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.event.events</a> &gt; <span class="el_source">LongboiDeathEvent.java</span></div><h1>LongboiDeathEvent.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.event.events;
+
+import com.vikingz.unitycoon.event.Event;
+import com.vikingz.unitycoon.global.GameGlobals;
+import com.vikingz.unitycoon.screens.GameScreen;
+
+/**
+ * Event where the university's mascot dies reducing satisfaction, this is reduced with the amount
+ * of statues you have.
+ */
+public class LongboiDeathEvent extends Event {
+  /**
+   * Initialise this type of event.
+   */
+  public LongboiDeathEvent(GameScreen gameScreen) {
+<span class="fc" id="L16">    super(() -&gt; {</span>
+<span class="fc" id="L17">      int statueCount = (int) gameScreen.getGameRenderer().getBuildingRenderer()</span>
+<span class="fc" id="L18">          .getPlaceBuildings().stream()</span>
+<span class="pc" id="L19">          .filter(building -&gt; building.getBuildingInfo().getBuildingId().equals(&quot;LONGBS&quot;))</span>
+<span class="fc" id="L20">          .count();</span>
+
+<span class="fc" id="L22">      return new Event(</span>
+          &quot;Your university's mascot, Longboi, has passed away.&quot;
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">              + (statueCount &gt; 0</span>
+<span class="nc" id="L25">              ? &quot;\nYou have &quot; + statueCount + &quot; Longboi Statues, so this decrease is reduced.&quot;</span>
+<span class="fc" id="L26">              : &quot;&quot;),</span>
+          new Event.Option(() -&gt; {
+<span class="fc" id="L28">            GameGlobals.SATISFACTION -= 250000 / (statueCount + 1);</span>
+
+<span class="fc" id="L30">            gameScreen.setPaused(false);</span>
+<span class="fc" id="L31">          }, &quot;-Satisfaction&quot;)</span>
+      );
+    });
+<span class="fc" id="L34">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

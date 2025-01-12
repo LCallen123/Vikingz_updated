@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BuildMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.render.menus</a> &gt; <span class="el_source">BuildMenu.java</span></div><h1>BuildMenu.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.render.menus;
+
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingCoinDict;
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingSatisfactionDict;
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingType.ACADEMIC;
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingType.ACCOMMODATION;
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingType.FOOD;
+import static com.vikingz.unitycoon.building.BuildingStats.BuildingType.RECREATIONAL;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.vikingz.unitycoon.building.BuildingStats;
+import com.vikingz.unitycoon.global.GameGlobals;
+import com.vikingz.unitycoon.render.BuildingRenderer;
+
+
+/**
+ * This class is what creates the build menu in the game.
+ *
+ * &lt;p&gt;It contains a single constructor that takes a Skin, BuildingRenderer and a Stage as
+ * parameters to create the Building Menu.
+ *
+ * &lt;p&gt;This class also creates the 4 buttons at the bottom of the game screen by which the build
+ * menu is accessed.
+ */
+public class BuildMenu {
+  // Renders buildings and handles placing them
+  private final BuildingRenderer buildingRenderer;
+
+  // The stage where the menu will be added to
+  private final Stage stage;
+
+  // The skin of the window
+  private final Skin skin;
+
+  // Current displayed in game Menu
+  private Window currentMenu;
+
+  // Building type counters
+  private final Label academicBuildingsCount;
+  private final Label accommodationBuildingsCount;
+  private final Label recreationalBuildingsCount;
+  private final Label foodBuildingsCount;
+
+  /**
+   * Creates a new BuildMenu.
+   *
+   * @param skin             Skin of the buttons on the menu
+   * @param buildingRenderer BuildingRenderer instance that renders the buildings in the game
+   * @param stage            The stage on which the menu is drawn
+   */
+<span class="nc" id="L65">  public BuildMenu(Skin skin, BuildingRenderer buildingRenderer, Stage stage) {</span>
+<span class="nc" id="L66">    this.stage = stage;</span>
+<span class="nc" id="L67">    this.buildingRenderer = buildingRenderer;</span>
+<span class="nc" id="L68">    this.skin = skin;</span>
+
+    // Building count labels
+<span class="nc" id="L71">    academicBuildingsCount = new Label(&quot;0&quot;, skin);</span>
+<span class="nc" id="L72">    academicBuildingsCount.setColor(Color.BLACK);</span>
+<span class="nc" id="L73">    academicBuildingsCount.setFontScale(1.8f);</span>
+
+<span class="nc" id="L75">    accommodationBuildingsCount = new Label(&quot;0&quot;, skin);</span>
+<span class="nc" id="L76">    accommodationBuildingsCount.setColor(Color.BLACK);</span>
+<span class="nc" id="L77">    accommodationBuildingsCount.setFontScale(1.8f);</span>
+
+<span class="nc" id="L79">    recreationalBuildingsCount = new Label(&quot;0&quot;, skin);</span>
+<span class="nc" id="L80">    recreationalBuildingsCount.setColor(Color.BLACK);</span>
+<span class="nc" id="L81">    recreationalBuildingsCount.setFontScale(1.8f);</span>
+
+<span class="nc" id="L83">    foodBuildingsCount = new Label(&quot;0&quot;, skin);</span>
+<span class="nc" id="L84">    foodBuildingsCount.setColor(Color.BLACK);</span>
+<span class="nc" id="L85">    foodBuildingsCount.setFontScale(1.8f);</span>
+
+    //Texture atlas of building menu bar
+    // Load your 64x64 PNG
+<span class="nc" id="L89">    Texture textureAtlas = new Texture(</span>
+<span class="nc" id="L90">        Gdx.files.internal(&quot;textures/textureAtlases/buildMenuButtonsAtlas.png&quot;));</span>
+
+    //Sets the pixel size of tiles used for build menu bar
+<span class="nc" id="L93">    int atlasTileSize = 64;</span>
+
+    // Create ImageButtons
+<span class="nc" id="L96">    TextureRegion academicBtnTexture = new TextureRegion(textureAtlas,</span>
+        0, 0,
+        atlasTileSize, atlasTileSize
+    );
+<span class="nc" id="L100">    TextureRegion academicBtnTextureHover = new TextureRegion(textureAtlas,</span>
+        0, atlasTileSize,
+        atlasTileSize, atlasTileSize
+    );
+<span class="nc" id="L104">    ImageButton academicBtn = new ImageButton(new ImageButton.ImageButtonStyle());</span>
+<span class="nc" id="L105">    academicBtn.getStyle().imageUp = new TextureRegionDrawable(academicBtnTexture);</span>
+<span class="nc" id="L106">    academicBtn.getStyle().imageOver = new TextureRegionDrawable(academicBtnTextureHover);</span>
+
+<span class="nc" id="L108">    TextureRegion accommodationTexture = new TextureRegion(textureAtlas,</span>
+        atlasTileSize, 0,
+        atlasTileSize, atlasTileSize
+    );
+<span class="nc" id="L112">    TextureRegion accommodationTextureHover = new TextureRegion(textureAtlas,</span>
+        atlasTileSize, atlasTileSize,
+        atlasTileSize, atlasTileSize
+    );
+<span class="nc" id="L116">    ImageButton accommodationBtn = new ImageButton(new ImageButton.ImageButtonStyle());</span>
+<span class="nc" id="L117">    accommodationBtn.getStyle().imageUp = new TextureRegionDrawable(accommodationTexture);</span>
+<span class="nc" id="L118">    accommodationBtn.getStyle().imageOver = new TextureRegionDrawable(accommodationTextureHover);</span>
+
+<span class="nc" id="L120">    TextureRegion recreationalBtnTexture = new TextureRegion(textureAtlas,</span>
+        atlasTileSize * 2, 0,
+        atlasTileSize, atlasTileSize
+    );
+<span class="nc" id="L124">    TextureRegion recreationalBtnTextureHover = new TextureRegion(textureAtlas,</span>
+        atlasTileSize * 2, atlasTileSize,
+        atlasTileSize, atlasTileSize
+    );
+<span class="nc" id="L128">    ImageButton recreationalBtn = new ImageButton(new ImageButton.ImageButtonStyle());</span>
+<span class="nc" id="L129">    recreationalBtn.getStyle().imageUp = new TextureRegionDrawable(recreationalBtnTexture);</span>
+<span class="nc" id="L130">    recreationalBtn.getStyle().imageOver = new TextureRegionDrawable(recreationalBtnTextureHover);</span>
+
+<span class="nc" id="L132">    TextureRegion foodBtnTexture = new TextureRegion(textureAtlas,</span>
+        atlasTileSize * 3, 0,
+        atlasTileSize, atlasTileSize
+    );
+<span class="nc" id="L136">    TextureRegion foodBtnTextureHover = new TextureRegion(textureAtlas,</span>
+        atlasTileSize * 3, atlasTileSize,
+        atlasTileSize, atlasTileSize
+    );
+<span class="nc" id="L140">    ImageButton foodBtn = new ImageButton(new ImageButton.ImageButtonStyle());</span>
+<span class="nc" id="L141">    foodBtn.getStyle().imageUp = new TextureRegionDrawable(foodBtnTexture);</span>
+<span class="nc" id="L142">    foodBtn.getStyle().imageOver = new TextureRegionDrawable(foodBtnTextureHover);</span>
+
+    // Building category labels
+<span class="nc" id="L145">    Label acedemicBuildingsLabel = new Label(&quot;Academic&quot;, skin);</span>
+<span class="nc" id="L146">    acedemicBuildingsLabel.setColor(Color.BLACK);</span>
+<span class="nc" id="L147">    acedemicBuildingsLabel.setFontScale(1.2f);</span>
+
+<span class="nc" id="L149">    Label accommodationBuildingsLabel = new Label(&quot;Accom&quot;, skin);</span>
+<span class="nc" id="L150">    accommodationBuildingsLabel.setColor(Color.BLACK);</span>
+<span class="nc" id="L151">    accommodationBuildingsLabel.setFontScale(1.2f);</span>
+
+<span class="nc" id="L153">    Label recreationalBuildingsLabel = new Label(&quot;Recreational&quot;, skin);</span>
+<span class="nc" id="L154">    recreationalBuildingsLabel.setColor(Color.BLACK);</span>
+<span class="nc" id="L155">    recreationalBuildingsLabel.setFontScale(1.2f);</span>
+
+<span class="nc" id="L157">    Label foodBuildingsLabel = new Label(&quot;Food&quot;, skin);</span>
+<span class="nc" id="L158">    foodBuildingsLabel.setColor(Color.BLACK);</span>
+<span class="nc" id="L159">    foodBuildingsLabel.setFontScale(1.2f);</span>
+
+    // Table for layout
+<span class="nc" id="L162">    Table table = new Table();</span>
+<span class="nc" id="L163">    table.setFillParent(true);</span>
+<span class="nc" id="L164">    table.bottom();</span>
+
+    // Add count labels to table
+<span class="nc" id="L167">    table.add(academicBuildingsCount);</span>
+<span class="nc" id="L168">    table.add(accommodationBuildingsCount);</span>
+<span class="nc" id="L169">    table.add(recreationalBuildingsCount);</span>
+<span class="nc" id="L170">    table.add(foodBuildingsCount).row();</span>
+
+    // Add buttons to table
+<span class="nc" id="L173">    table.add(academicBtn).pad(5, 0, 5, 0);</span>
+<span class="nc" id="L174">    table.add(accommodationBtn).pad(5, 0, 5, 0);</span>
+<span class="nc" id="L175">    table.add(recreationalBtn).pad(5, 0, 5, 0);</span>
+<span class="nc" id="L176">    table.add(foodBtn).pad(5, 0, 5, 0).row();</span>
+
+    // Add category labels to table
+<span class="nc" id="L179">    table.add(acedemicBuildingsLabel).pad(0, 10, 5, 10).uniformX();</span>
+<span class="nc" id="L180">    table.add(accommodationBuildingsLabel).pad(0, 10, 5, 10).uniformX();</span>
+<span class="nc" id="L181">    table.add(recreationalBuildingsLabel).pad(0, 10, 5, 10).uniformX();</span>
+<span class="nc" id="L182">    table.add(foodBuildingsLabel).pad(0, 10, 5, 10).uniformX();</span>
+
+    // Add table to stage
+<span class="nc" id="L185">    stage.addActor(table);</span>
+
+    // Set up click listeners for buttons
+    // Do not need to `enableAfter` as the user should know that they are opening the build menu
+<span class="nc" id="L189">    academicBtn.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L192">        hideMenu();</span>
+<span class="nc" id="L193">        showMenu(ACADEMIC);</span>
+<span class="nc" id="L194">      }</span>
+    });
+
+<span class="nc" id="L197">    accommodationBtn.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L200">        hideMenu();</span>
+<span class="nc" id="L201">        showMenu(ACCOMMODATION);</span>
+<span class="nc" id="L202">      }</span>
+    });
+
+<span class="nc" id="L205">    recreationalBtn.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L208">        hideMenu();</span>
+<span class="nc" id="L209">        showMenu(RECREATIONAL);</span>
+<span class="nc" id="L210">      }</span>
+    });
+
+<span class="nc" id="L213">    foodBtn.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L216">        hideMenu();</span>
+<span class="nc" id="L217">        showMenu(FOOD);</span>
+<span class="nc" id="L218">      }</span>
+    });
+<span class="nc" id="L220">  }</span>
+
+  /**
+   * Hide the current menu.
+   */
+  private void hideMenu() {
+<span class="nc bnc" id="L226" title="All 2 branches missed.">    if (currentMenu != null) {</span>
+<span class="nc" id="L227">      currentMenu.remove();</span>
+    }
+<span class="nc" id="L229">  }</span>
+
+  // Variables for the build menu window,
+<span class="nc" id="L232">  private int index = 0;</span>
+  private BuildingStats.BuildingType buildingType;
+  private Label buildingNameLabel;
+  private Image buildingImage;
+  private Label buildingPriceValue;
+  private Label buildingSatisfactionValue;
+  private Label buildingStudentsValue;
+  private Label buildingCoinsValue;
+
+  /**
+   * Creates a new window and sets up all the contents of the window
+   * so that when the user presses one of the buttons at the bottom of the game
+   * screen the corresponding menu is shown.
+   *
+   * @param buildingType contains Type of building from BuildingStats
+   */
+  private void showMenu(BuildingStats.BuildingType buildingType) {
+<span class="nc" id="L249">    this.buildingType = buildingType;</span>
+<span class="nc" id="L250">    index = 0;</span>
+
+<span class="nc" id="L252">    Window window = new Window(&quot;&quot;, skin);</span>
+<span class="nc" id="L253">    this.currentMenu = window;</span>
+<span class="nc" id="L254">    window.setModal(true);</span>
+<span class="nc" id="L255">    window.setMovable(false);</span>
+<span class="nc" id="L256">    window.setResizable(false);</span>
+<span class="nc" id="L257">    window.setBackground(GameGlobals.backGroundDrawable);</span>
+
+    // Building name Label
+<span class="nc" id="L260">    buildingNameLabel = new Label(&quot;&quot;, skin);</span>
+<span class="nc" id="L261">    buildingNameLabel.setFontScale(1.8f);</span>
+
+    // Image Of Building
+<span class="nc" id="L264">    buildingImage = new Image();</span>
+
+<span class="nc" id="L266">    Table statsTable = new Table();</span>
+<span class="nc" id="L267">    statsTable.center();</span>
+
+    // Price
+<span class="nc" id="L270">    Label buildingPriceLabel = new Label(&quot;Cost:&quot;, skin);</span>
+<span class="nc" id="L271">    buildingPriceLabel.setFontScale(1.4f);</span>
+<span class="nc" id="L272">    buildingPriceValue = new Label(&quot;&quot;, skin);</span>
+<span class="nc" id="L273">    buildingPriceValue.setFontScale(1.4f);</span>
+<span class="nc" id="L274">    statsTable.add(buildingPriceLabel).left().padBottom(2).padRight(15);</span>
+<span class="nc" id="L275">    statsTable.add(buildingPriceValue).left().row();</span>
+
+    // Satisfaction
+<span class="nc" id="L278">    Label buildingSatisfactionLabel = new Label(&quot;Satisfaction/s:&quot;, skin);</span>
+<span class="nc" id="L279">    buildingSatisfactionLabel.setFontScale(1.4f);</span>
+<span class="nc" id="L280">    buildingSatisfactionValue = new Label(&quot;&quot;, skin);</span>
+<span class="nc" id="L281">    buildingSatisfactionValue.setFontScale(1.4f);</span>
+<span class="nc" id="L282">    statsTable.add(buildingSatisfactionLabel).left().padBottom(2).padRight(15);</span>
+<span class="nc" id="L283">    statsTable.add(buildingSatisfactionValue).left().row();</span>
+
+    // Students
+<span class="nc" id="L286">    Label buildingStudentsLabel = new Label(&quot;Student Capacity:&quot;, skin);</span>
+<span class="nc" id="L287">    buildingStudentsLabel.setFontScale(1.4f);</span>
+<span class="nc" id="L288">    buildingStudentsValue = new Label(&quot;&quot;, skin);</span>
+<span class="nc" id="L289">    buildingStudentsValue.setFontScale(1.4f);</span>
+<span class="nc" id="L290">    statsTable.add(buildingStudentsLabel).left().padBottom(2).padRight(15);</span>
+<span class="nc" id="L291">    statsTable.add(buildingStudentsValue).left().row();</span>
+
+    // Coins
+<span class="nc" id="L294">    Label buildingCoinsLabel = new Label(&quot;Coins/s:&quot;, skin);</span>
+<span class="nc" id="L295">    buildingCoinsLabel.setFontScale(1.4f);</span>
+<span class="nc" id="L296">    buildingCoinsValue = new Label(&quot;&quot;, skin);</span>
+<span class="nc" id="L297">    buildingCoinsValue.setFontScale(1.4f);</span>
+<span class="nc" id="L298">    statsTable.add(buildingCoinsLabel).left().padBottom(2).padRight(15);</span>
+<span class="nc" id="L299">    statsTable.add(buildingCoinsValue).left().row();</span>
+
+    //Back Building Button
+<span class="nc" id="L302">    TextButton backButton = new TextButton(&quot;&lt;&quot;, skin);</span>
+<span class="nc" id="L303">    backButton.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L306">        index = Math.floorMod(index - 1, BuildingStats.BuildingNameDict.get(buildingType).length);</span>
+<span class="nc" id="L307">        updateBuildingWindow();</span>
+<span class="nc" id="L308">      }</span>
+    });
+
+    //Next Building Button
+<span class="nc" id="L312">    TextButton nextButton = new TextButton(&quot;&gt;&quot;, skin);</span>
+<span class="nc" id="L313">    nextButton.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L316">        index = Math.floorMod(index + 1, BuildingStats.BuildingNameDict.get(buildingType).length);</span>
+<span class="nc" id="L317">        updateBuildingWindow();</span>
+<span class="nc" id="L318">      }</span>
+    });
+
+    // Create the Buy Button
+<span class="nc" id="L322">    TextButton buyButton = new TextButton(&quot;Buy&quot;, skin);</span>
+<span class="nc" id="L323">    buyButton.getLabel().setFontScale(0.8f);</span>
+<span class="nc" id="L324">    buyButton.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L327">        buildingRenderer.selectBuilding(buildingType, index);</span>
+<span class="nc" id="L328">        hideMenu();</span>
+<span class="nc" id="L329">      }</span>
+    });
+
+    // Create the close button
+<span class="nc" id="L333">    TextButton closeButton = new TextButton(&quot;Close&quot;, skin);</span>
+<span class="nc" id="L334">    closeButton.getLabel().setFontScale(0.8f);</span>
+<span class="nc" id="L335">    closeButton.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L338">        hideMenu();</span>
+<span class="nc" id="L339">      }</span>
+    });
+
+<span class="nc" id="L342">    updateBuildingWindow();</span>
+
+<span class="nc" id="L344">    window.add(buildingNameLabel).colspan(3).padBottom(10).row();</span>
+<span class="nc" id="L345">    window.add(backButton).size(100, 100);</span>
+<span class="nc" id="L346">    window.add(buildingImage).size(200, 200).padRight(25).padLeft(25);</span>
+<span class="nc" id="L347">    window.add(nextButton).size(100, 100).row();</span>
+<span class="nc" id="L348">    window.add(statsTable).colspan(3).padTop(20).padBottom(25).row();</span>
+<span class="nc" id="L349">    window.add(buyButton).colspan(3).padBottom(10).row();</span>
+<span class="nc" id="L350">    window.add(closeButton).colspan(3);</span>
+
+    // Set size and position of the window
+<span class="nc" id="L353">    window.setSize(800, 800);</span>
+<span class="nc" id="L354">    window.setPosition(</span>
+<span class="nc" id="L355">        (stage.getWidth() - window.getWidth()) / 2,</span>
+<span class="nc" id="L356">        (stage.getHeight() - window.getHeight()) / 2</span>
+    );
+
+    // Add window to the stage
+<span class="nc" id="L360">    stage.addActor(window);</span>
+
+    // Remove current selected building to place
+<span class="nc" id="L363">    buildingRenderer.clearSelectedBuilding();</span>
+<span class="nc" id="L364">  }</span>
+
+  /**
+   * Sets the text of each label to current index.
+   */
+  private void updateBuildingWindow() {
+<span class="nc" id="L370">    buildingNameLabel.setText(BuildingStats.BuildingNameDict.get(buildingType)[index]);</span>
+<span class="nc" id="L371">    buildingImage.setDrawable(new TextureRegionDrawable(BuildingStats.getTextureOfBuilding(</span>
+<span class="nc" id="L372">        BuildingStats.BuildingDict.get(buildingType)[index])));</span>
+<span class="nc" id="L373">    buildingPriceValue.setText(BuildingStats.BuildingPriceDict.get(buildingType)[index]);</span>
+<span class="nc" id="L374">    buildingSatisfactionValue.setText(BuildingSatisfactionDict.get(buildingType)[index]);</span>
+<span class="nc" id="L375">    buildingStudentsValue.setText(BuildingStats.BuildingStudentDict.get(buildingType)[index]);</span>
+<span class="nc" id="L376">    buildingCoinsValue.setText(BuildingCoinDict.get(buildingType)[index]);</span>
+<span class="nc" id="L377">  }</span>
+
+  /**
+   * BuildingMenu render actors objects.
+   */
+  public void render(float delta) {
+<span class="nc" id="L383">    stage.act(delta);</span>
+<span class="nc" id="L384">    stage.draw();</span>
+
+<span class="nc" id="L386">    academicBuildingsCount.setText(GameGlobals.ACADEMIC_BUILDINGS_COUNT);</span>
+<span class="nc" id="L387">    accommodationBuildingsCount.setText(GameGlobals.ACCOMMODATION_BUILDINGS_COUNT);</span>
+<span class="nc" id="L388">    recreationalBuildingsCount.setText(GameGlobals.RECREATIONAL_BUILDINGS_COUNT);</span>
+<span class="nc" id="L389">    foodBuildingsCount.setText(GameGlobals.FOOD_BUILDINGS_COUNT);</span>
+<span class="nc" id="L390">  }</span>
+
+  /**
+   * Called when on window resize.
+   *
+   * @param width  New width
+   * @param height New height
+   */
+  public void resize(int width, int height) {
+<span class="nc" id="L399">    stage.getViewport().update(width, height, true);</span>
+<span class="nc" id="L400">  }</span>
+
+  /**
+   * Disposes of the build menu.
+   */
+  public void dispose() {
+<span class="nc" id="L406">    stage.dispose();</span>
+<span class="nc" id="L407">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

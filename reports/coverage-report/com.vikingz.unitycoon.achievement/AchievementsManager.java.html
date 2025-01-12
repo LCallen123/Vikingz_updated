@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AchievementsManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.achievement</a> &gt; <span class="el_source">AchievementsManager.java</span></div><h1>AchievementsManager.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.achievement;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.vikingz.unitycoon.global.GameGlobals;
+import com.vikingz.unitycoon.screens.GameScreen;
+import com.vikingz.unitycoon.util.StatsCalculator;
+
+/**
+ * Class to manage achievements during the game.
+ */
+public class AchievementsManager {
+  private final GameScreen gameScreen;
+  public Achievement[] achievements;
+
+  /**
+   * Initialise the achievement manager.
+   */
+<span class="fc" id="L18">  public AchievementsManager(GameScreen gameScreen) {</span>
+<span class="fc" id="L19">    this.gameScreen = gameScreen;</span>
+
+<span class="fc" id="L21">    achievements = new Achievement[]{</span>
+        new Achievement(
+            &quot;Dean of Dollars\nHave a balance over 15k&quot;,
+<span class="fc bfc" id="L24" title="All 2 branches covered.">            () -&gt; GameGlobals.BALANCE &gt; 15000,</span>
+            new Texture(&quot;textures/achievements/dean-of-dollars.png&quot;),
+            () -&gt; {
+<span class="nc" id="L27">              GameGlobals.SATISFACTION += 100000;</span>
+<span class="nc" id="L28">              gameScreen.setPaused(false);</span>
+<span class="nc" id="L29">            },</span>
+            &quot;+Satisfaction&quot;
+        ),
+        new Achievement(
+<span class="fc" id="L33">            &quot;A+ Atmosphere\nHave over &quot; + StatsCalculator.getFormattedSatisfaction(1_000_000)</span>
+                + &quot; Satisfaction&quot;,
+<span class="fc bfc" id="L35" title="All 2 branches covered.">            () -&gt; GameGlobals.SATISFACTION &gt; 1000000,</span>
+            new Texture(&quot;textures/achievements/a-plus-atmosphere.png&quot;),
+            () -&gt; {
+<span class="nc" id="L38">              GameGlobals.BALANCE += 400;</span>
+<span class="nc" id="L39">              gameScreen.setPaused(false);</span>
+<span class="nc" id="L40">            },</span>
+            &quot;+400 Money&quot;
+        ),
+        new Achievement(
+            &quot;Concrete Campus\nHave over 10 Buildings&quot;,
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            () -&gt; GameGlobals.ACADEMIC_BUILDINGS_COUNT + GameGlobals.ACCOMMODATION_BUILDINGS_COUNT</span>
+                + GameGlobals.FOOD_BUILDINGS_COUNT + GameGlobals.RECREATIONAL_BUILDINGS_COUNT &gt; 10,
+            new Texture(&quot;textures/achievements/concrete-campus.png&quot;),
+            () -&gt; {
+<span class="nc" id="L49">              GameGlobals.BALANCE += 150;</span>
+<span class="nc" id="L50">              GameGlobals.STUDENTS += 150;</span>
+<span class="nc" id="L51">              gameScreen.setPaused(false);</span>
+<span class="nc" id="L52">            },</span>
+            &quot;+150 Money\n+150 Students&quot;
+        ),
+        new Achievement(
+            &quot;Crowded Campus\nHave over 1000 Students&quot;,
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            () -&gt; GameGlobals.STUDENTS &gt; 1000,</span>
+            new Texture(&quot;textures/achievements/crowded-campus.png&quot;),
+            () -&gt; {
+<span class="nc" id="L60">              GameGlobals.SATISFACTION += 50000;</span>
+<span class="nc" id="L61">              GameGlobals.STUDENTS += 100;</span>
+<span class="nc" id="L62">              gameScreen.setPaused(false);</span>
+<span class="nc" id="L63">            },</span>
+            &quot;+Satisfaction\n+100 Students&quot;
+        ),
+        new Achievement(
+            &quot;Work Hard, Play Harder\nHave over 5 recreational buildings&quot;,
+<span class="fc bfc" id="L68" title="All 2 branches covered.">            () -&gt; GameGlobals.RECREATIONAL_BUILDINGS_COUNT &gt; 5,</span>
+            new Texture(&quot;textures/achievements/work-play.png&quot;),
+            () -&gt; {
+<span class="nc" id="L71">              GameGlobals.SATISFACTION += 100000;</span>
+<span class="nc" id="L72">              gameScreen.setPaused(false);</span>
+<span class="nc" id="L73">            },</span>
+            &quot;+Satisfaction&quot;
+        ),
+    };
+<span class="fc" id="L77">  }</span>
+
+  /**
+   * Check if any achievements have been reached, if so display feedback to the user.
+   *
+   * &lt;p&gt;This should be run every render
+   */
+  public void update() {
+<span class="fc bfc" id="L85" title="All 2 branches covered.">    for (Achievement achievement : achievements) {</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">      if (achievement.calculate()) {</span>
+<span class="fc" id="L87">        gameScreen.setPaused(true);</span>
+<span class="fc" id="L88">        gameScreen.getUiRenderer().showAchievement(achievement);</span>
+      }
+    }
+<span class="fc" id="L91">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

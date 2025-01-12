@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UiRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.render</a> &gt; <span class="el_source">UiRenderer.java</span></div><h1>UiRenderer.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.render;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.vikingz.unitycoon.achievement.Achievement;
+import com.vikingz.unitycoon.event.Event;
+import com.vikingz.unitycoon.global.GameConfig;
+import com.vikingz.unitycoon.global.GameGlobals;
+import com.vikingz.unitycoon.render.menus.BuildMenu;
+import com.vikingz.unitycoon.render.menus.EndMenu;
+import com.vikingz.unitycoon.render.menus.IntroductionMenu;
+import com.vikingz.unitycoon.render.menus.PauseMenu;
+import com.vikingz.unitycoon.render.menus.PopupMenu;
+import com.vikingz.unitycoon.screens.GameScreen;
+
+/**
+ * This class renders all the UI elements to the Screen.
+ *
+ * &lt;p&gt;This enables us to control how the UI is draw and resized differently from how the rest of
+ * the game is drawn.
+ *
+ * &lt;p&gt;This class essentially forms another layer on the screen that renders all the UI elements on
+ * this layer as opposed to the game layer.
+ */
+public class UiRenderer {
+  private static final int POPUP_DISABLED_MS = 500;
+
+  private final Stage stage;
+  private final Viewport viewport;
+
+  private final BuildMenu buildMenu;
+  private final StatsRenderer statsRenderer;
+  private final AchievementsRenderer achievementsRenderer;
+
+  // Popup Menus
+  private final PauseMenu pauseMenu;
+  private final EndMenu endOfTimerPopup;
+  private final PopupMenu popupMenu;
+  private final IntroductionMenu introductionMenu;
+
+  GameScreen gameScreen;
+
+  /**
+   * Creates a new UiRenderer.
+   *
+   * @param skin             Skin used to style content
+   * @param buildingRenderer Building renderer
+   * @param gameScreen       Game screen
+   */
+<span class="nc" id="L59">  public UiRenderer(Skin skin, BuildingRenderer buildingRenderer, GameScreen gameScreen) {</span>
+<span class="nc" id="L60">    this.gameScreen = gameScreen;</span>
+
+<span class="nc" id="L62">    viewport = new FitViewport(1824, 1026);</span>
+<span class="nc" id="L63">    stage = new Stage(viewport);</span>
+
+<span class="nc" id="L65">    statsRenderer = new StatsRenderer(skin);</span>
+<span class="nc" id="L66">    achievementsRenderer = new AchievementsRenderer(gameScreen.getAchievementsManager(), skin);</span>
+
+<span class="nc" id="L68">    buildMenu = new BuildMenu(skin, buildingRenderer, stage);</span>
+
+<span class="nc" id="L70">    pauseMenu = new PauseMenu(skin, this);</span>
+<span class="nc" id="L71">    endOfTimerPopup = new EndMenu(skin, &quot;End of Game&quot;);</span>
+<span class="nc" id="L72">    popupMenu = new PopupMenu(skin);</span>
+<span class="nc" id="L73">    introductionMenu = new IntroductionMenu(skin, () -&gt; gameScreen.setPaused(false));</span>
+
+<span class="nc" id="L75">    Table pauseContainer = new Table();</span>
+<span class="nc" id="L76">    pauseContainer.setFillParent(true);</span>
+<span class="nc" id="L77">    pauseContainer.bottom().left();</span>
+<span class="nc" id="L78">    Texture pauseTex = new Texture(Gdx.files.internal(&quot;ui/sprites/pause.png&quot;));</span>
+<span class="nc" id="L79">    Image pauseButton = new Image(pauseTex);</span>
+<span class="nc" id="L80">    pauseButton.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L83">        pause();</span>
+<span class="nc" id="L84">      }</span>
+    });
+<span class="nc" id="L86">    pauseContainer.add(pauseButton).size(90, 90).pad(10);</span>
+<span class="nc" id="L87">    stage.addActor(pauseContainer);</span>
+<span class="nc" id="L88">  }</span>
+
+  /**
+   * Show an event popup.
+   *
+   * @param event the event to show
+   */
+  public void showEvent(Event event) {
+<span class="nc" id="L96">    popupMenu.setPosition(</span>
+<span class="nc" id="L97">        (stage.getWidth() - popupMenu.getWidth()) / 2,</span>
+<span class="nc" id="L98">        (stage.getHeight() - popupMenu.getHeight()) / 2</span>
+    );
+
+<span class="nc" id="L101">    popupMenu.setMessage(event.getMessage());</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">    if (event.hasChoice()) {</span>
+<span class="nc" id="L103">      popupMenu.setupButtons(</span>
+<span class="nc" id="L104">          event.getOpt1().getAction(), event.getOpt1().getText(), event.getOpt1().isDisabled(),</span>
+<span class="nc" id="L105">          event.getOpt2().getAction(), event.getOpt2().getText(), event.getOpt2().isDisabled()</span>
+      );
+    } else {
+<span class="nc" id="L108">      popupMenu.setupSingleButton(event.getOpt1().getAction(), event.getOpt1().getText());</span>
+    }
+<span class="nc" id="L110">    popupMenu.enableAfter(POPUP_DISABLED_MS);</span>
+<span class="nc" id="L111">    stage.addActor(popupMenu);</span>
+
+    // Remove current selected building to place
+<span class="nc" id="L114">    gameScreen.getGameRenderer().getBuildingRenderer().clearSelectedBuilding();</span>
+<span class="nc" id="L115">  }</span>
+
+  /**
+   * Show an achievement popup.
+   *
+   * @param achievement the achievement to show
+   */
+  public void showAchievement(Achievement achievement) {
+<span class="nc" id="L123">    popupMenu.setPosition(</span>
+<span class="nc" id="L124">        (stage.getWidth() - popupMenu.getWidth()) / 2,</span>
+<span class="nc" id="L125">        (stage.getHeight() - popupMenu.getHeight()) / 2</span>
+    );
+
+<span class="nc" id="L128">    popupMenu.setMessage(&quot;Achievement Unlocked\n\n&quot; + achievement.name);</span>
+<span class="nc" id="L129">    popupMenu.setupSingleButton(achievement.reward, achievement.rewardText);</span>
+<span class="nc" id="L130">    popupMenu.enableAfter(POPUP_DISABLED_MS);</span>
+<span class="nc" id="L131">    stage.addActor(popupMenu);</span>
+
+<span class="nc" id="L133">    achievementsRenderer.update();</span>
+
+    // Remove current selected building to place
+<span class="nc" id="L136">    gameScreen.getGameRenderer().getBuildingRenderer().clearSelectedBuilding();</span>
+<span class="nc" id="L137">  }</span>
+
+  /**
+   * Show popup with one button.
+   */
+  public void showPopup(String text, String btnText, Runnable runnable) {
+<span class="nc" id="L143">    popupMenu.setPosition(</span>
+<span class="nc" id="L144">        (stage.getWidth() - popupMenu.getWidth()) / 2,</span>
+<span class="nc" id="L145">        (stage.getHeight() - popupMenu.getHeight()) / 2</span>
+    );
+
+<span class="nc" id="L148">    popupMenu.setMessage(text);</span>
+<span class="nc" id="L149">    popupMenu.setupSingleButton(runnable, btnText);</span>
+<span class="nc" id="L150">    popupMenu.enableAfter(POPUP_DISABLED_MS);</span>
+<span class="nc" id="L151">    stage.addActor(popupMenu);</span>
+
+    // Remove current selected building to place
+<span class="nc" id="L154">    gameScreen.getGameRenderer().getBuildingRenderer().clearSelectedBuilding();</span>
+<span class="nc" id="L155">  }</span>
+
+  /**
+   * Show popup with two buttons.
+   */
+  public void showPopup(String text,
+                        String leftBtnText, Runnable leftRunnable,
+                        String rightBtnText, Runnable rightRunnable) {
+<span class="nc" id="L163">    popupMenu.setPosition(</span>
+<span class="nc" id="L164">        (stage.getWidth() - popupMenu.getWidth()) / 2,</span>
+<span class="nc" id="L165">        (stage.getHeight() - popupMenu.getHeight()) / 2</span>
+    );
+
+<span class="nc" id="L168">    popupMenu.setMessage(text);</span>
+<span class="nc" id="L169">    popupMenu.setupButtons(</span>
+        leftRunnable, leftBtnText, false,
+        rightRunnable, rightBtnText, false
+    );
+<span class="nc" id="L173">    popupMenu.enableAfter(POPUP_DISABLED_MS);</span>
+<span class="nc" id="L174">    stage.addActor(popupMenu);</span>
+
+    // Remove current selected building to place
+<span class="nc" id="L177">    gameScreen.getGameRenderer().getBuildingRenderer().clearSelectedBuilding();</span>
+<span class="nc" id="L178">  }</span>
+
+  /**
+   * When the game screen has decided the game has finished the game will call this function
+   * which will show the end of game popup.
+   */
+  public void endGame() {
+    // Refresh the end menu showing the leaderboard section if the users score can be added
+<span class="nc" id="L186">    endOfTimerPopup.refresh(GameConfig.getInstance().isOnLeaderboard(GameGlobals.SATISFACTION));</span>
+
+<span class="nc" id="L188">    endOfTimerPopup.setPosition(</span>
+<span class="nc" id="L189">        (stage.getWidth() - endOfTimerPopup.getWidth()) / 2,</span>
+<span class="nc" id="L190">        (stage.getHeight() - endOfTimerPopup.getHeight()) / 2</span>
+    );
+<span class="nc" id="L192">    endOfTimerPopup.enableAfter(POPUP_DISABLED_MS);</span>
+<span class="nc" id="L193">    stage.addActor(endOfTimerPopup);</span>
+
+    // Remove current selected building to place
+<span class="nc" id="L196">    gameScreen.getGameRenderer().getBuildingRenderer().clearSelectedBuilding();</span>
+<span class="nc" id="L197">  }</span>
+
+  /**
+   * Call when the game is starting, to show introduction popup.
+   */
+  public void startGame() {
+<span class="nc" id="L203">    introductionMenu.setPosition(</span>
+<span class="nc" id="L204">        (stage.getWidth() - introductionMenu.getWidth()) / 2,</span>
+<span class="nc" id="L205">        (stage.getHeight() - introductionMenu.getHeight()) / 2</span>
+    );
+<span class="nc" id="L207">    stage.addActor(introductionMenu);</span>
+<span class="nc" id="L208">  }</span>
+
+  /**
+   * Pause/unpause and show/hide the pause enu respectively.
+   */
+  public void pause() {
+<span class="nc" id="L214">    System.out.println(&quot;Pressed ESC&quot;);</span>
+
+<span class="nc bnc" id="L216" title="All 2 branches missed.">    if (!pauseMenu.hasParent()) {</span>
+      // Do not need to `enableAfter` as the user should know that they are pausing
+<span class="nc" id="L218">      stage.addActor(pauseMenu);</span>
+<span class="nc" id="L219">      pauseMenu.setPosition(</span>
+<span class="nc" id="L220">          (stage.getWidth() - pauseMenu.getWidth()) / 2,</span>
+<span class="nc" id="L221">          (stage.getHeight() - pauseMenu.getHeight()) / 2</span>
+      );
+<span class="nc" id="L223">      gameScreen.setPaused(true);</span>
+
+      // Remove current selected building to place
+<span class="nc" id="L226">      gameScreen.getGameRenderer().getBuildingRenderer().clearSelectedBuilding();</span>
+    } else {
+<span class="nc" id="L228">      pauseMenu.remove();</span>
+<span class="nc" id="L229">      gameScreen.setPaused(false);</span>
+    }
+<span class="nc" id="L231">  }</span>
+
+  /**
+   * Calls all render functions.
+   */
+  public void render(float delta) {
+<span class="nc" id="L237">    viewport.apply();</span>
+<span class="nc" id="L238">    stage.act(delta);</span>
+<span class="nc" id="L239">    stage.draw();</span>
+<span class="nc" id="L240">    statsRenderer.render(delta);</span>
+<span class="nc" id="L241">    achievementsRenderer.render(delta);</span>
+<span class="nc" id="L242">    buildMenu.render(delta);</span>
+<span class="nc" id="L243">  }</span>
+
+  /**
+   * Resizes UI content when the window is resized.
+   *
+   * @param width  New width
+   * @param height New height
+   */
+  public void resize(int width, int height) {
+<span class="nc" id="L252">    viewport.update(width, height, true);</span>
+<span class="nc" id="L253">    buildMenu.resize(width, height);</span>
+<span class="nc" id="L254">    achievementsRenderer.resize(width, height);</span>
+<span class="nc" id="L255">  }</span>
+
+  /**
+   * Sets the input processor to this class and the other renders when called.
+   */
+  public void takeInput() {
+<span class="nc" id="L261">    InputMultiplexer inputMultiplexer = new InputMultiplexer();</span>
+<span class="nc" id="L262">    inputMultiplexer.addProcessor(stage);</span>
+<span class="nc" id="L263">    inputMultiplexer.addProcessor(achievementsRenderer.getInputProcessor());</span>
+<span class="nc" id="L264">    Gdx.input.setInputProcessor(inputMultiplexer);</span>
+<span class="nc" id="L265">  }</span>
+
+  /**
+   * Dispose for garbage collection.
+   */
+  public void dispose() {
+<span class="nc" id="L271">    stage.dispose();</span>
+<span class="nc" id="L272">    achievementsRenderer.dispose();</span>
+<span class="nc" id="L273">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

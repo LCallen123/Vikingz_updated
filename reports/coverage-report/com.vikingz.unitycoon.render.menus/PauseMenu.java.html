@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PauseMenu.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.render.menus</a> &gt; <span class="el_source">PauseMenu.java</span></div><h1>PauseMenu.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.render.menus;
+
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.vikingz.unitycoon.global.GameGlobals;
+import com.vikingz.unitycoon.render.UiRenderer;
+import com.vikingz.unitycoon.screens.ScreenMultiplexer;
+
+/**
+ * This class represents the pause menu.
+ *
+ * &lt;p&gt;This is the menu that appears if the user pauses the game.
+ *
+ * &lt;p&gt;The menu contains a settings button, resume button, and quit button.
+ */
+public class PauseMenu extends Window {
+  /**
+   * Creates a new pause menu.
+   *
+   * @param skin Contains the skin pack to be used with menu
+   */
+  public PauseMenu(Skin skin, UiRenderer uiRenderer) {
+<span class="nc" id="L27">    super(&quot;&quot;, skin);</span>
+
+<span class="nc" id="L29">    this.setSize(800, 400);</span>
+<span class="nc" id="L30">    this.setModal(true);</span>
+<span class="nc" id="L31">    this.setMovable(false);</span>
+<span class="nc" id="L32">    this.setResizable(false);</span>
+
+<span class="nc" id="L34">    Label message = new Label(&quot;Game Paused!&quot;, skin);</span>
+<span class="nc" id="L35">    message.setFontScale(2f);</span>
+<span class="nc" id="L36">    this.add(message).padBottom(20).row();</span>
+<span class="nc" id="L37">    this.setBackground(GameGlobals.backGroundDrawable);</span>
+
+<span class="nc" id="L39">    TextButton settingsBtn = new TextButton(&quot;Settings&quot;, skin);</span>
+<span class="nc" id="L40">    settingsBtn.getLabel().setFontScale(0.7f);</span>
+<span class="nc" id="L41">    settingsBtn.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L44">        ScreenMultiplexer.openSettings(ScreenMultiplexer.Screens.GAME);</span>
+<span class="nc" id="L45">      }</span>
+    });
+
+<span class="nc" id="L48">    TextButton continueBtn = new TextButton(&quot;Resume&quot;, skin);</span>
+<span class="nc" id="L49">    continueBtn.getLabel().setFontScale(0.7f);</span>
+<span class="nc" id="L50">    continueBtn.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L53">        uiRenderer.pause();</span>
+<span class="nc" id="L54">      }</span>
+    });
+
+<span class="nc" id="L57">    TextButton quitBtn = new TextButton(&quot;Exit (to menu)&quot;, skin);</span>
+<span class="nc" id="L58">    quitBtn.getLabel().setFontScale(0.7f);</span>
+<span class="nc" id="L59">    quitBtn.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L62">        ScreenMultiplexer.closeGame();</span>
+<span class="nc" id="L63">      }</span>
+    });
+
+<span class="nc" id="L66">    this.add(settingsBtn).padBottom(10);</span>
+<span class="nc" id="L67">    this.add(continueBtn).pad(10).row();</span>
+<span class="nc" id="L68">    this.add(quitBtn).pad(10).colspan(2);</span>
+<span class="nc" id="L69">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

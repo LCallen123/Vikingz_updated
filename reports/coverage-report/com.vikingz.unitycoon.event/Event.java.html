@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Event.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.event</a> &gt; <span class="el_source">Event.java</span></div><h1>Event.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.event;
+
+import java.util.concurrent.Callable;
+
+/**
+ * Class representing an event, with its message options and actions.
+ * This is extended in each of the events which call super to initialise.
+ */
+<span class="fc" id="L9">public class Event {</span>
+  private final Callable&lt;Event&gt; calculateEvent;
+  private final boolean isEventCalculated;
+
+  /**
+   * Represents an option for an event.
+   */
+  public static class Option {
+    private final String text;
+    private final Runnable action;
+    private final boolean disabled;
+
+    /**
+     * Initialise option with given data.
+     *
+     * @param action to run when this option is selected
+     * @param text   to display for this option
+     */
+<span class="fc" id="L27">    public Option(Runnable action, String text) {</span>
+<span class="fc" id="L28">      this.action = action;</span>
+<span class="fc" id="L29">      this.text = text;</span>
+<span class="fc" id="L30">      disabled = false;</span>
+<span class="fc" id="L31">    }</span>
+
+    /**
+     * Initialise option with given data.
+     *
+     * @param action   to run when this option is selected
+     * @param text     to display for this option
+     * @param disabled if the option is disabled
+     */
+<span class="fc" id="L40">    public Option(Runnable action, String text, boolean disabled) {</span>
+<span class="fc" id="L41">      this.action = action;</span>
+<span class="fc" id="L42">      this.text = text;</span>
+<span class="fc" id="L43">      this.disabled = disabled;</span>
+<span class="fc" id="L44">    }</span>
+
+    public String getText() {
+<span class="fc" id="L47">      return text;</span>
+    }
+
+    public Runnable getAction() {
+<span class="fc" id="L51">      return action;</span>
+    }
+
+    public boolean isDisabled() {
+<span class="fc" id="L55">      return disabled;</span>
+    }
+  }
+
+  private final String message;
+  private final Option opt1;
+  private final Option opt2;
+  private final boolean choice;
+
+  /**
+   * Initialise event with message and given options.
+   */
+<span class="fc" id="L67">  public Event(String message, Option opt1, Option opt2) {</span>
+<span class="fc" id="L68">    this.message = message;</span>
+<span class="fc" id="L69">    this.opt1 = opt1;</span>
+<span class="fc" id="L70">    this.opt2 = opt2;</span>
+<span class="fc" id="L71">    choice = true;</span>
+
+<span class="fc" id="L73">    calculateEvent = null;</span>
+<span class="fc" id="L74">    isEventCalculated = false;</span>
+<span class="fc" id="L75">  }</span>
+
+  /**
+   * Initialise event with message and given option.
+   */
+<span class="fc" id="L80">  public Event(String message, Option opt) {</span>
+<span class="fc" id="L81">    this.message = message;</span>
+<span class="fc" id="L82">    this.opt1 = opt;</span>
+<span class="fc" id="L83">    this.opt2 = null;</span>
+<span class="fc" id="L84">    choice = false;</span>
+
+<span class="fc" id="L86">    calculateEvent = null;</span>
+<span class="fc" id="L87">    isEventCalculated = false;</span>
+<span class="fc" id="L88">  }</span>
+
+  /**
+   * Initialise event with callback to generate event in realtime.
+   */
+<span class="fc" id="L93">  public Event(Callable&lt;Event&gt; event) {</span>
+<span class="fc" id="L94">    this.message = null;</span>
+<span class="fc" id="L95">    this.opt1 = null;</span>
+<span class="fc" id="L96">    this.opt2 = null;</span>
+<span class="fc" id="L97">    choice = true;</span>
+
+<span class="fc" id="L99">    calculateEvent = event;</span>
+<span class="fc" id="L100">    isEventCalculated = true;</span>
+<span class="fc" id="L101">  }</span>
+
+  /**
+   * Get the event object.
+   */
+  public Event getEvent() {
+<span class="fc bfc" id="L107" title="All 2 branches covered.">    if (isEventCalculated) {</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">      assert calculateEvent != null;</span>
+      try {
+<span class="fc" id="L110">        return calculateEvent.call();</span>
+<span class="nc" id="L111">      } catch (Exception e) {</span>
+<span class="nc" id="L112">        throw new RuntimeException(e);</span>
+      }
+    } else {
+<span class="fc" id="L115">      return this;</span>
+    }
+  }
+
+  public String getMessage() {
+<span class="fc" id="L120">    return message;</span>
+  }
+
+  public Option getOpt1() {
+<span class="fc" id="L124">    return opt1;</span>
+  }
+
+  public Option getOpt2() {
+<span class="fc" id="L128">    return opt2;</span>
+  }
+
+  /**
+   * If the user has two options instead of one.
+   */
+  public boolean hasChoice() {
+<span class="fc" id="L135">    return choice;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

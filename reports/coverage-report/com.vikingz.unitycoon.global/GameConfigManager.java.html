@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameConfigManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.global</a> &gt; <span class="el_source">GameConfigManager.java</span></div><h1>GameConfigManager.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.global;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.utils.Json;
+
+/**
+ * This class allows us to save the GameConfig to a json file in player prefs.
+ * It contains methods for saving and loading a game configuration.
+ */
+<span class="nc" id="L12">public class GameConfigManager {</span>
+  /**
+   * Sets game to fullscreen.
+   */
+  public static void setFullScreen() {
+<span class="fc" id="L17">    Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());</span>
+<span class="fc" id="L18">  }</span>
+
+  /**
+   * Sets game to a windowed screen.
+   */
+  public static void setWindowScreen() {
+<span class="fc" id="L24">    Gdx.graphics.setWindowedMode(</span>
+<span class="fc" id="L25">        GameConfig.getInstance().getWindowWidth(), GameConfig.getInstance().getWindowHeight()</span>
+    );
+<span class="fc" id="L27">  }</span>
+
+  /**
+   * Returns the display mode string output of the fullScreen or gets current windowed resolution.
+   *
+   * @return String WIDTH x HEIGHT
+   */
+  public static String getFriendlyWindowSize() {
+<span class="fc" id="L35">    Graphics.DisplayMode displayMode = Gdx.graphics.getDisplayMode();</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">    if (Gdx.graphics.isFullscreen()) {</span>
+<span class="fc" id="L37">      return &quot;Fullscreen&quot;;</span>
+    }
+<span class="fc" id="L39">    return String.format(</span>
+        &quot;%dx%d&quot;,
+<span class="fc" id="L41">        GameConfig.getInstance().getWindowWidth(),</span>
+<span class="fc" id="L42">        GameConfig.getInstance().getWindowHeight()</span>
+    );
+  }
+
+  /**
+   * Saves GameConfig Object to prefs as JSON,
+   * to save settings and leaderboard.
+   */
+  public static void saveGameConfig() {
+<span class="fc" id="L51">    Json json = new Json();</span>
+<span class="fc" id="L52">    String configString = json.toJson(GameConfig.getInstance());</span>
+<span class="fc" id="L53">    Preferences prefs = Gdx.app.getPreferences(&quot;prefs&quot;);</span>
+<span class="fc" id="L54">    prefs.putString(&quot;config&quot;, configString);</span>
+
+<span class="fc" id="L56">    prefs.flush();</span>
+<span class="fc" id="L57">  }</span>
+
+  /**
+   * Loads GameConfig Object from JSON in prefs,
+   * to load existing settings and leaderboard.
+   */
+  public static void loadGameConfig() {
+    GameConfig conf;
+
+<span class="fc" id="L66">    Json json = new Json();</span>
+<span class="fc" id="L67">    Preferences prefs = Gdx.app.getPreferences(&quot;prefs&quot;);</span>
+
+<span class="fc" id="L69">    String configString = prefs.getString(&quot;config&quot;);</span>
+<span class="pc bpc" id="L70" title="1 of 4 branches missed.">    if (configString == null || configString.isEmpty()) {</span>
+<span class="fc" id="L71">      System.out.println(&quot;Saved config not found&quot;);</span>
+<span class="fc" id="L72">      return;</span>
+    }
+
+    try {
+<span class="fc" id="L76">      conf = json.fromJson(GameConfig.class, configString);</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">      if (conf == null) {</span>
+<span class="nc" id="L78">        throw new Exception();</span>
+      }
+
+<span class="fc" id="L81">      GameConfig.getInstance().setInstance(conf);</span>
+<span class="fc" id="L82">    } catch (Exception e) {</span>
+<span class="fc" id="L83">      System.err.println(&quot;Error deserializing config: &quot; + e.getMessage());</span>
+<span class="fc" id="L84">    }</span>
+<span class="fc" id="L85">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

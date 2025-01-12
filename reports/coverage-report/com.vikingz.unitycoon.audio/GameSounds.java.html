@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameSounds.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.audio</a> &gt; <span class="el_source">GameSounds.java</span></div><h1>GameSounds.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.audio;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.vikingz.unitycoon.annotations.DebugMethodExcludeGeneratedJacoco;
+import com.vikingz.unitycoon.global.GameConfig;
+import java.util.Random;
+
+/**
+ * This class loads and plays all the sounds effects for the entire game.
+ */
+<span class="nc" id="L12">public class GameSounds {</span>
+
+  // Load the sounds fx
+<span class="fc" id="L15">  private static Sound placeBuilding1 = Gdx.audio.newSound(</span>
+<span class="fc" id="L16">      Gdx.files.internal(&quot;audio/place_1.ogg&quot;)</span>
+  );
+<span class="fc" id="L18">  private static Sound placeBuilding2 = Gdx.audio.newSound(</span>
+<span class="fc" id="L19">      Gdx.files.internal(&quot;audio/place_2.ogg&quot;)</span>
+  );
+<span class="fc" id="L21">  private static Sound placeBuilding3 = Gdx.audio.newSound(</span>
+<span class="fc" id="L22">      Gdx.files.internal(&quot;audio/place_3.ogg&quot;)</span>
+  );
+<span class="fc" id="L24">  private static Sound placeError1 = Gdx.audio.newSound(</span>
+<span class="fc" id="L25">      Gdx.files.internal(&quot;audio/place_error_1.ogg&quot;)</span>
+  );
+<span class="fc" id="L27">  private static Sound placeError2 = Gdx.audio.newSound(</span>
+<span class="fc" id="L28">      Gdx.files.internal(&quot;audio/place_error_2.ogg&quot;)</span>
+  );
+
+  /**
+   * Method to allow us to inject our sounds for testing.
+   */
+  @DebugMethodExcludeGeneratedJacoco
+  public static void setBuildingSounds(Sound placedBuildingSounds, Sound placeErrorSounds) {
+    placeBuilding1 = placedBuildingSounds;
+    placeBuilding2 = placedBuildingSounds;
+    placeBuilding3 = placedBuildingSounds;
+    placeError1 = placeErrorSounds;
+    placeError2 = placeErrorSounds;
+  }
+
+  //Sets the volume of the GameSounds to be played
+<span class="fc" id="L44">  public static float volume = GameConfig.getInstance().getSoundVolumeValue();</span>
+
+  /**
+   * Plays the placed building sound.
+   */
+  public static void playPlacedBuilding() {
+<span class="fc" id="L50">    int randNum = new Random().nextInt(1, 4);</span>
+<span class="pc bpc" id="L51" title="2 of 4 branches missed.">    switch (randNum) {</span>
+<span class="fc" id="L52">      case 1 -&gt; placeBuilding1.play(volume);</span>
+<span class="nc" id="L53">      case 2 -&gt; placeBuilding2.play(volume);</span>
+<span class="fc" id="L54">      case 3 -&gt; placeBuilding3.play(volume);</span>
+      default -&gt; {
+      }
+    }
+<span class="fc" id="L58">  }</span>
+
+
+  /**
+   * Plays the error sound.
+   */
+  public static void playPlaceError() {
+<span class="fc" id="L65">    int randNum = new Random().nextInt(1, 3);</span>
+
+<span class="pc bpc" id="L67" title="1 of 3 branches missed.">    switch (randNum) {</span>
+<span class="fc" id="L68">      case 1 -&gt; placeError1.play(volume);</span>
+<span class="fc" id="L69">      case 2 -&gt; placeError2.play(volume);</span>
+      default -&gt; {
+      }
+    }
+<span class="fc" id="L73">  }</span>
+
+  /**
+   * Gets the volume.
+   *
+   * @return Float Volume level
+   */
+  public static float getVolume() {
+<span class="fc" id="L81">    return volume;</span>
+  }
+
+  /**
+   * Sets the volume level.
+   *
+   * @param volume New volume level
+   */
+  public static void setVolume(float volume) {
+<span class="fc" id="L90">    GameSounds.volume = volume;</span>
+<span class="fc" id="L91">    GameConfig.getInstance().setSoundVolumeValue(volume);</span>
+<span class="fc" id="L92">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

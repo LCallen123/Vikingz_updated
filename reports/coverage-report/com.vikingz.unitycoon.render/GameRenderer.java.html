@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.render</a> &gt; <span class="el_source">GameRenderer.java</span></div><h1>GameRenderer.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.render;
+
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import com.vikingz.unitycoon.global.GameConfig;
+import com.vikingz.unitycoon.screens.GameScreen;
+import com.vikingz.unitycoon.util.Point;
+
+/**
+ * This class contains all the renderers that render the game.
+ *
+ * &lt;p&gt;This class contains the renderers that draw the background as well as the buildings.
+ * Using this class enables us to have a separate viewport that controls how the game is rendered
+ * as well as what happens when the game window is resized.
+ */
+public class GameRenderer {
+
+  private final GameScreen gameScreen;
+
+  private final Stage stage;
+  private final Camera camera;
+  private final Viewport viewport;
+
+  private final BackgroundRenderer backgroundRenderer;
+  private final BuildingRenderer buildingRenderer;
+
+  /**
+   * Creates new Game Renderer.
+   *
+   * @param mapName Name of the map to be drawn as the background
+   */
+<span class="nc" id="L36">  public GameRenderer(GameScreen gameScreen, String mapName) {</span>
+<span class="nc" id="L37">    this.gameScreen = gameScreen;</span>
+
+    // Creates and camera and set up the viewport
+<span class="nc" id="L40">    camera = new OrthographicCamera();</span>
+<span class="nc" id="L41">    viewport = new FitViewport(</span>
+<span class="nc" id="L42">        GameConfig.getInstance().getWindowWidth(),</span>
+<span class="nc" id="L43">        GameConfig.getInstance().getWindowHeight()</span>
+    );
+
+<span class="nc" id="L46">    stage = new Stage(viewport);</span>
+<span class="nc" id="L47">    backgroundRenderer = new BackgroundRenderer(mapName);</span>
+<span class="nc" id="L48">    buildingRenderer = new BuildingRenderer(this);</span>
+<span class="nc" id="L49">  }</span>
+
+  /**
+   * Draws the game contents to the screen.
+   *
+   * @param delta Time since last frame
+   */
+  public void render(float delta) {
+<span class="nc" id="L57">    viewport.apply();</span>
+<span class="nc" id="L58">    stage.getViewport().apply();</span>
+<span class="nc" id="L59">    camera.update();</span>
+
+<span class="nc" id="L61">    backgroundRenderer.render(delta);</span>
+<span class="nc" id="L62">    buildingRenderer.render(delta);</span>
+<span class="nc" id="L63">  }</span>
+
+  /**
+   * Translates screen coordinates to game canvas coordinates.
+   *
+   * @param p Point on the screen
+   * @return Point on the game canvas
+   */
+  public Point translateCoords(Point p) {
+<span class="nc" id="L72">    Vector3 vec3 = new Vector3(p.getX(), p.getY(), 0);</span>
+<span class="nc" id="L73">    Vector3 vec3Translated = viewport.unproject(vec3);</span>
+<span class="nc" id="L74">    return new Point(vec3Translated.x, vec3Translated.y);</span>
+  }
+
+  /**
+   * Updates renderers when the window is resized.
+   *
+   * @param width  New width
+   * @param height New height
+   */
+  public void resize(int width, int height) {
+<span class="nc" id="L84">    viewport.update(width, height);</span>
+<span class="nc" id="L85">    backgroundRenderer.resize(width, height);</span>
+<span class="nc" id="L86">    buildingRenderer.resize(width, height);</span>
+<span class="nc" id="L87">  }</span>
+
+  /**
+   * used to get BuildingRenderer from parent GameRenderer.
+   *
+   * @return BuildingRenderer
+   */
+  public BuildingRenderer getBuildingRenderer() {
+<span class="nc" id="L95">    return buildingRenderer;</span>
+  }
+
+  /**
+   * used to get BackgroundRenderer from parent GameRenderer.
+   *
+   * @return BackgroundRenderer
+   */
+  public BackgroundRenderer getBackgroundRenderer() {
+<span class="nc" id="L104">    return backgroundRenderer;</span>
+  }
+
+  /**
+   * Dispose for garbage collection.
+   */
+  public void dispose() {
+<span class="nc" id="L111">    stage.dispose();</span>
+<span class="nc" id="L112">    backgroundRenderer.dispose();</span>
+<span class="nc" id="L113">    buildingRenderer.dispose();</span>
+<span class="nc" id="L114">  }</span>
+
+  /**
+   * Get the scaling value from the FitViewport.
+   */
+  public float getViewportScaling() {
+<span class="nc" id="L120">    float heightScaling = viewport.getScreenHeight() / viewport.getWorldHeight();</span>
+<span class="nc" id="L121">    float widthScaling = viewport.getScreenWidth() / viewport.getWorldWidth();</span>
+<span class="nc" id="L122">    return Math.min(heightScaling, widthScaling);</span>
+  }
+
+  public GameScreen getGameScreen() {
+<span class="nc" id="L126">    return gameScreen;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

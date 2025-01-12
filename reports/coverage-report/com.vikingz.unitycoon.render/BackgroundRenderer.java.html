@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BackgroundRenderer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.render</a> &gt; <span class="el_source">BackgroundRenderer.java</span></div><h1>BackgroundRenderer.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.render;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.vikingz.unitycoon.util.FileHandler;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * This class is in charge of loading and drawing the textured tiles for the background.
+ *
+ * &lt;p&gt;The constructor is passed a mapName which then can be read using the {@code FileHandler}
+ * which is then used to draw the map as defined in the map file.
+ *
+ * &lt;p&gt;This class also contains the constants that assign the characters that represent the tiles in
+ * the map file.
+ */
+public class BackgroundRenderer {
+
+  // Constants that map the tiles used to draw the background
+  // to characters that can be encoded in the map file
+  private static final char GRASS = 'G';
+  private static final char WATER = 'W';
+  private static final char COBBLE_STONE = 'C';
+  private static final char ROAD = 'R';
+  private static final char GRASS2 = 'g';
+  private static final char WATER2 = 'w';
+  private static final char COBBLE_STONE2 = 'c';
+  private static final char ROAD2 = 'r';
+
+  private static final int TILE_WIDTH = 32; // Size of each tile in game
+  private static final int TILE_HEIGHT = 32; // Size of each tile in game
+
+  //batch that the tiles will be drawn on
+  private final SpriteBatch batch;
+
+  //String of the map from file
+  private final String map;
+
+  // Textures of tiles
+  private TextureRegion grassTile;
+  private TextureRegion waterTile;
+  private TextureRegion cobbleTile;
+  private TextureRegion roadTile;
+  private TextureRegion grassTile2;
+  private TextureRegion waterTile2;
+  private TextureRegion cobbleTile2;
+  private TextureRegion roadTile2;
+
+  /**
+   * Creates a new background renderer.
+   *
+   * @param mapName The name of the map that will be drawn
+   */
+<span class="nc" id="L59">  public BackgroundRenderer(String mapName) {</span>
+<span class="nc" id="L60">    this.map = FileHandler.loadMap(mapName);</span>
+<span class="nc" id="L61">    batch = new SpriteBatch();</span>
+
+    //Texture of all tiles
+    // Load your 64x64 PNG
+<span class="nc" id="L65">    Texture texture = new Texture(Gdx.files.internal(</span>
+        &quot;textures/textureAtlases/backgroundAtlas.png&quot;));
+
+    // Create TextureRegions for each tile
+<span class="nc" id="L69">    int atlasTileSize = 64;</span>
+<span class="nc" id="L70">    grassTile = new TextureRegion(texture,</span>
+        0, 0, atlasTileSize, atlasTileSize);
+<span class="nc" id="L72">    waterTile = new TextureRegion(texture,</span>
+        atlasTileSize, 0, atlasTileSize, atlasTileSize);
+<span class="nc" id="L74">    cobbleTile = new TextureRegion(texture,</span>
+        atlasTileSize * 2, 0, atlasTileSize, atlasTileSize);
+<span class="nc" id="L76">    roadTile = new TextureRegion(texture,</span>
+        atlasTileSize * 3, 0, atlasTileSize, atlasTileSize);
+<span class="nc" id="L78">    grassTile2 = new TextureRegion(texture,</span>
+        0, atlasTileSize, atlasTileSize, atlasTileSize);
+<span class="nc" id="L80">    waterTile2 = new TextureRegion(texture,</span>
+        atlasTileSize, atlasTileSize, atlasTileSize, atlasTileSize);
+<span class="nc" id="L82">    cobbleTile2 = new TextureRegion(texture,</span>
+        atlasTileSize * 2, atlasTileSize, atlasTileSize, atlasTileSize);
+<span class="nc" id="L84">    roadTile2 = new TextureRegion(texture,</span>
+        atlasTileSize * 3, atlasTileSize, atlasTileSize, atlasTileSize);
+<span class="nc" id="L86">  }</span>
+
+  /**
+   * Draws the background to the screen.
+   *
+   * @param delta Time since last frame
+   */
+  public void render(float delta) {
+<span class="nc" id="L94">    batch.begin();</span>
+<span class="nc" id="L95">    drawTiledBackgroundFromMap();</span>
+<span class="nc" id="L96">    batch.end();</span>
+<span class="nc" id="L97">  }</span>
+
+  /**
+   * Draws the background to the screen using the string map and char case switch.
+   */
+  private void drawTiledBackgroundFromMap() {
+<span class="nc" id="L103">    int rows = map.split(&quot;\n&quot;).length;</span>
+<span class="nc" id="L104">    int cols = map.split(&quot;\n&quot;)[0].length();</span>
+
+<span class="nc bnc" id="L106" title="All 2 branches missed.">    for (int i = 0; i &lt; rows; i++) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">      for (int j = 0; j &lt; cols; j++) {</span>
+        // The list has to be reversed as the file is read top to bottom but the tiles are drawn
+        // bottom to top.
+
+<span class="nc" id="L111">        List&lt;String&gt; strRowsList = Arrays.asList(map.split(&quot;\n&quot;));</span>
+<span class="nc" id="L112">        Collections.reverse(strRowsList);</span>
+
+<span class="nc bnc" id="L114" title="All 9 branches missed.">        switch (strRowsList.get(i).charAt(j)) {</span>
+          case GRASS -&gt;
+<span class="nc" id="L116">              batch.draw(grassTile, j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);</span>
+          case WATER -&gt;
+<span class="nc" id="L118">              batch.draw(waterTile, j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);</span>
+          case COBBLE_STONE -&gt;
+<span class="nc" id="L120">              batch.draw(cobbleTile, j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);</span>
+          case ROAD -&gt;
+<span class="nc" id="L122">              batch.draw(roadTile, j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);</span>
+          case GRASS2 -&gt;
+<span class="nc" id="L124">              batch.draw(grassTile2, j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);</span>
+          case WATER2 -&gt;
+<span class="nc" id="L126">              batch.draw(waterTile2, j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);</span>
+          case COBBLE_STONE2 -&gt;
+<span class="nc" id="L128">              batch.draw(cobbleTile2, j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);</span>
+          case ROAD2 -&gt;
+<span class="nc" id="L130">              batch.draw(roadTile2, j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);</span>
+          default -&gt; {
+          }
+        }
+      }
+    }
+<span class="nc" id="L136">  }</span>
+
+  /**
+   * Call when the window is resized.
+   */
+  public void resize(int width, int height) {
+<span class="nc" id="L142">  }</span>
+
+  /**
+   * Disposes tile assets for garbage collection.
+   */
+  public void dispose() {
+<span class="nc" id="L148">    batch.dispose();</span>
+<span class="nc" id="L149">    roadTile = null;</span>
+<span class="nc" id="L150">    grassTile = null;</span>
+<span class="nc" id="L151">    waterTile = null;</span>
+<span class="nc" id="L152">    cobbleTile = null;</span>
+<span class="nc" id="L153">    grassTile2 = null;</span>
+<span class="nc" id="L154">    waterTile2 = null;</span>
+<span class="nc" id="L155">    cobbleTile2 = null;</span>
+<span class="nc" id="L156">    roadTile2 = null;</span>
+<span class="nc" id="L157">  }</span>
+
+  public String getMap() {
+<span class="nc" id="L160">    return map;</span>
+  }
+
+  /**
+   * Check if the tile is a grass tile.
+   */
+  public boolean isGrass(char tile) {
+<span class="nc bnc" id="L167" title="All 4 branches missed.">    return tile == GRASS || tile == GRASS2;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

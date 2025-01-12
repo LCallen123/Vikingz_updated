@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlumniVisitEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.event.events</a> &gt; <span class="el_source">AlumniVisitEvent.java</span></div><h1>AlumniVisitEvent.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.event.events;
+
+import com.vikingz.unitycoon.event.Event;
+import com.vikingz.unitycoon.global.GameGlobals;
+import com.vikingz.unitycoon.screens.GameScreen;
+
+/**
+ * Event where an alumni member visits the uni, if there is high enough satisfaction they will
+ * donate, if not your reputation is damaged.
+ */
+public class AlumniVisitEvent extends Event {
+  /**
+   * Initialise this type of event.
+   */
+  public AlumniVisitEvent(GameScreen gameScreen) {
+<span class="fc" id="L16">    super(() -&gt; {</span>
+<span class="pc bpc" id="L17" title="1 of 2 branches missed.">      boolean alumniImpressed = GameGlobals.SATISFACTION &gt; 1000000;</span>
+<span class="fc" id="L18">      return new Event(</span>
+          &quot;Surprise alumni Visit\n&quot;
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">              + (alumniImpressed</span>
+<span class="nc" id="L21">              ? &quot;The alumni is impressed with the university and donates&quot;</span>
+<span class="fc" id="L22">              : &quot;The alumni is not impressed and your reputation decreases&quot;)</span>
+              + &quot;.&quot;,
+          new Event.Option(() -&gt; {
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">            if (alumniImpressed) {</span>
+<span class="nc" id="L26">              GameGlobals.BALANCE += 5000;</span>
+            } else {
+<span class="fc" id="L28">              GameGlobals.STUDENTS = Math.max(0, GameGlobals.STUDENTS - 350);</span>
+            }
+
+<span class="fc" id="L31">            gameScreen.setPaused(false);</span>
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">          }, alumniImpressed ? &quot;+5000 Money&quot; : &quot;-350 Students&quot;)</span>
+      );
+    });
+<span class="fc" id="L35">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SettingsScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">test</a> &gt; <a href="index.source.html" class="el_package">com.vikingz.unitycoon.screens</a> &gt; <span class="el_source">SettingsScreen.java</span></div><h1>SettingsScreen.java</h1><pre class="source lang-java linenums">package com.vikingz.unitycoon.screens;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.vikingz.unitycoon.audio.GameMusic;
+import com.vikingz.unitycoon.audio.GameSounds;
+import com.vikingz.unitycoon.global.GameConfigManager;
+
+/**
+ * This screen represents the settings screen in the game.
+ *
+ * &lt;p&gt;It contains multiple buttons and slider which edit different game settings
+ */
+public class SettingsScreen extends SuperScreen implements Screen {
+  // Components on the settings screen
+  private final Label resolutionLabel;
+  private String resolutionString;
+  private String musicVolume;
+  private String soundVolume;
+
+  // Music and Sounds Components
+  private final Slider soundVolumeSlider;
+  private final Label soundVolumeLabel;
+  private final Slider musicVolumeSlider;
+  private final Label musicVolumeLabel;
+
+  // Stores the previous screen before settings
+  private ScreenMultiplexer.Screens previousScreen;
+
+  private GameScreen gameScreen;
+
+  /**
+   * Creates a new settings screen.
+   */
+  public SettingsScreen() {
+<span class="nc" id="L44">    super();</span>
+
+<span class="nc" id="L46">    resolutionString = GameConfigManager.getFriendlyWindowSize();</span>
+
+<span class="nc" id="L48">    previousScreen = ScreenMultiplexer.Screens.MENU;</span>
+<span class="nc" id="L49">    resolutionLabel = new Label(GameConfigManager.getFriendlyWindowSize(), skin);</span>
+<span class="nc" id="L50">    resolutionLabel.setFontScale(2f);</span>
+
+    // Create Sound volume slider
+<span class="nc" id="L53">    soundVolumeSlider = new Slider(0, 1, 0.1f, false, skin);</span>
+<span class="nc" id="L54">    soundVolumeSlider.setValue(GameSounds.getVolume());</span>
+<span class="nc" id="L55">    soundVolumeLabel = new Label(soundVolume, skin);</span>
+<span class="nc" id="L56">    soundVolumeLabel.setFontScale(1.8f);</span>
+<span class="nc" id="L57">    soundVolume = &quot;Sound Volume: &quot; + soundVolumeSlider.getValue();</span>
+
+    // Create Music volume slider
+<span class="nc" id="L60">    musicVolumeSlider = new Slider(0, 1, 0.1f, false, skin);</span>
+<span class="nc" id="L61">    musicVolumeSlider.setValue(GameMusic.getVolume());</span>
+<span class="nc" id="L62">    musicVolumeLabel = new Label(soundVolume, skin);</span>
+<span class="nc" id="L63">    musicVolumeLabel.setFontScale(1.8f);</span>
+<span class="nc" id="L64">    this.musicVolume = &quot;Music Volume: &quot; + musicVolumeSlider.getValue();</span>
+
+    // Back button to return to MenuScreen
+<span class="nc" id="L67">    TextButton backButton = new TextButton(&quot;Back&quot;, skin);</span>
+<span class="nc" id="L68">    backButton.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L71">        goBack();</span>
+<span class="nc" id="L72">      }</span>
+    });
+
+    // Button that fullscreen game
+<span class="nc" id="L76">    TextButton fullscreenButton = new TextButton(&quot;Fullscreen&quot;, skin);</span>
+<span class="nc" id="L77">    fullscreenButton.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L80">        GameConfigManager.setFullScreen();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (gameScreen != null) {</span>
+<span class="nc" id="L82">          gameScreen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());</span>
+        }
+<span class="nc" id="L84">      }</span>
+    });
+
+    //Button that makes the game window
+<span class="nc" id="L88">    TextButton windowButton = new TextButton(&quot;Window Mode&quot;, skin);</span>
+<span class="nc" id="L89">    windowButton.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L92">        GameConfigManager.setWindowScreen();</span>
+<span class="nc" id="L93">      }</span>
+    });
+
+    //Saves the configuration of GameConfig
+<span class="nc" id="L97">    TextButton saveGameConfigButton = new TextButton(&quot;Save&quot;, skin);</span>
+<span class="nc" id="L98">    saveGameConfigButton.addListener(new ClickListener() {</span>
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+<span class="nc" id="L101">        GameConfigManager.saveGameConfig();</span>
+<span class="nc" id="L102">      }</span>
+    });
+
+    // Create layout table
+<span class="nc" id="L106">    Table table = new Table();</span>
+<span class="nc" id="L107">    table.setFillParent(true);</span>
+<span class="nc" id="L108">    table.center();</span>
+
+<span class="nc" id="L110">    table.add(resolutionLabel).colspan(2).row();</span>
+<span class="nc" id="L111">    table.add(soundVolumeLabel).colspan(2).uniformX().pad(10).row();</span>
+<span class="nc" id="L112">    table.add(soundVolumeSlider).colspan(2).uniformX().width(500).pad(10).row();</span>
+<span class="nc" id="L113">    table.add(musicVolumeLabel).colspan(2).uniformX().pad(10).row();</span>
+<span class="nc" id="L114">    table.add(musicVolumeSlider).colspan(2).uniformX().width(500).pad(10).row();</span>
+<span class="nc" id="L115">    table.add(fullscreenButton).fillX().uniformX().pad(10);</span>
+<span class="nc" id="L116">    table.add(windowButton).fillX().uniformX().pad(10).row();</span>
+<span class="nc" id="L117">    table.add(saveGameConfigButton).colspan(2).pad(10).padTop(60).row();</span>
+<span class="nc" id="L118">    table.add(backButton).colspan(2).uniformX().pad(10);</span>
+
+    // Add table to stage
+<span class="nc" id="L121">    stage.addActor(table);</span>
+<span class="nc" id="L122">  }</span>
+
+  /**
+   * Switches screens back to the screen the user accessed settings from.
+   */
+  public void goBack() {
+<span class="nc" id="L128">    System.out.println(previousScreen.name());</span>
+
+<span class="nc bnc" id="L130" title="All 2 branches missed.">    if (previousScreen.name().equals(&quot;GAME&quot;)) {</span>
+<span class="nc" id="L131">      ScreenMultiplexer.switchScreens(previousScreen);</span>
+    } else {
+<span class="nc" id="L133">      ScreenMultiplexer.openMenu();</span>
+    }
+<span class="nc" id="L135">  }</span>
+
+  @Override
+  public void show() {
+<span class="nc" id="L139">  }</span>
+
+  /**
+   * Draws the components of the settings screen.
+   *
+   * @param delta Time since last frame
+   */
+  @Override
+  public void render(float delta) {
+    // Clear screen
+<span class="nc" id="L149">    ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1);</span>
+
+    // Go back when pressing ESC
+<span class="nc bnc" id="L152" title="All 2 branches missed.">    if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {</span>
+<span class="nc" id="L153">      goBack();</span>
+    }
+
+<span class="nc" id="L156">    soundVolume = &quot;Sound Volume: &quot; + Math.round(soundVolumeSlider.getValue() * 10);</span>
+<span class="nc" id="L157">    musicVolume = &quot;Music Volume: &quot; + Math.round(musicVolumeSlider.getValue() * 10);</span>
+
+<span class="nc" id="L159">    GameSounds.setVolume(soundVolumeSlider.getValue());</span>
+<span class="nc" id="L160">    GameMusic.setVolume(musicVolumeSlider.getValue());</span>
+
+<span class="nc" id="L162">    soundVolumeLabel.setText(soundVolume);</span>
+<span class="nc" id="L163">    musicVolumeLabel.setText(musicVolume);</span>
+<span class="nc" id="L164">    resolutionLabel.setText(resolutionString);</span>
+
+<span class="nc" id="L166">    stage.act(delta);</span>
+<span class="nc" id="L167">    stage.draw();</span>
+<span class="nc" id="L168">  }</span>
+
+  /**
+   * Changes SettingScreen to new resolution and updates resolutionText.
+   *
+   * @param width  int resolution
+   * @param height int resolution
+   */
+  @Override
+  public void resize(int width, int height) {
+<span class="nc" id="L178">    stage.getViewport().update(width, height, true);</span>
+<span class="nc" id="L179">    resolutionString = &quot;Resolution: &quot; + width + &quot;x&quot; + height;</span>
+<span class="nc" id="L180">  }</span>
+
+  @Override
+  public void pause() {
+<span class="nc" id="L184">  }</span>
+
+  @Override
+  public void resume() {
+<span class="nc" id="L188">  }</span>
+
+  @Override
+  public void hide() {
+<span class="nc" id="L192">  }</span>
+
+  /**
+   * Dispose for garbage collection.
+   */
+  @Override
+  public void dispose() {
+
+<span class="nc" id="L200">    stage.dispose();</span>
+<span class="nc" id="L201">    skin.dispose();</span>
+<span class="nc" id="L202">  }</span>
+
+  /**
+   * Sets the previous screen.
+   *
+   * @param prevScreen Previous screen
+   */
+  public void setPrevScreen(ScreenMultiplexer.Screens prevScreen) {
+<span class="nc" id="L210">    this.previousScreen = prevScreen;</span>
+<span class="nc" id="L211">  }</span>
+
+  public void setGameScreen(GameScreen gameScreen) {
+<span class="nc" id="L214">    this.gameScreen = gameScreen;</span>
+<span class="nc" id="L215">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
